@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/logo-gold.png">
 <style>
 :root{
   --ink:#080808;--surface:#121212;--line:#ffffff14;
@@ -31,6 +32,9 @@ nav{position:sticky;top:0;z-index:10;background:#080808e8;backdrop-filter:blur(1
 .nav-in{display:flex;align-items:center;gap:26px;padding:16px 0}
 .logo{width:44px;height:44px;border-radius:11px;background:linear-gradient(160deg,#FDE68A,var(--gold));display:grid;place-items:center;flex:none;box-shadow:0 0 24px #FBBF2433}
 .logo span{font-family:'Archivo Black';font-size:.72rem;color:#080808;letter-spacing:.02em}
+.mark{display:flex;align-items:center;gap:10px;flex:none}
+.mark img{height:42px;width:auto;filter:drop-shadow(0 0 14px #FBBF2422)}
+.mark small{font-family:'Archivo Black';font-size:.6rem;color:var(--gold);letter-spacing:.3em}
 .links{display:flex;gap:26px;margin:0 auto}
 .links a{font-size:.74rem;font-weight:800;letter-spacing:.22em;color:var(--dim);transition:color .2s}
 .links a:hover,.links a:focus-visible{color:var(--gold)}
@@ -99,7 +103,7 @@ footer a:hover{color:var(--gold)}
 <body>
 
 <nav aria-label="Main navigation"><div class="wrap nav-in">
-  <a class="logo" href="#top" aria-label="Bad Apple 17BA home"><span>17BA</span></a>
+  <a class="mark" href="#top" aria-label="Bad Apple 17BA home"><img src="assets/logo-gold.png" alt="BAD" width="52" height="42"><small>17BA</small></a>
   <div class="links">
     <a href="https://17ba-bad-apple-enterprise.vercel.app" target="_blank" rel="noopener">TRADE</a>
     <a href="https://17ba-bad-apple-enterprise.vercel.app/collections" target="_blank" rel="noopener">FASHION</a>
@@ -157,7 +161,7 @@ footer a:hover{color:var(--gold)}
 <footer><div class="wrap">
   <div class="foot-grid">
     <div class="foot-brand">
-      <div class="logo" style="width:38px;height:38px"><span style="font-size:.62rem">17BA</span></div>
+      <div class="mark"><img src="assets/logo-snow.png" alt="BAD" style="height:52px" width="64" height="52"></div>
       <div class="creedline">Fallen from the tree.<br>Sharper for the fall.</div>
     </div>
     <div><h4>COMPANY</h4>
@@ -176,7 +180,7 @@ footer a:hover{color:var(--gold)}
       <a href="https://17ba-bad-apple-enterprise.vercel.app/privacy" target="_blank" rel="noopener">Privacy</a>
     </div>
   </div>
-  <p class="copy">© 2026 BAD APPLE 17BA ENTERPRISE. Trading involves substantial risk. We move different — we still tell you the truth about risk.</p>
+  <p class="copy">© 2026 BAD APPLE 17BA ENTERPRISE. Trading involves substantial risk. We move different. We still tell you the truth about risk.</p>
 </div></footer>
 
 <script>

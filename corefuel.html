@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/logo-gold.png">
 <style>
 :root{
   --ink:#080808;--surface:#121212;--line:#ffffff14;
@@ -25,8 +26,9 @@ a{color:inherit;text-decoration:none}
 
 nav{position:sticky;top:0;z-index:10;background:#080808e8;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .nav-in{display:flex;align-items:center;gap:26px;padding:16px 0}
-.logo{width:44px;height:44px;border-radius:11px;background:linear-gradient(160deg,#FDE68A,var(--gold));display:grid;place-items:center;flex:none;box-shadow:0 0 24px #FBBF2433}
-.logo span{font-family:'Archivo Black';font-size:.72rem;color:#080808;letter-spacing:.02em}
+.mark{display:flex;align-items:center;gap:10px;flex:none}
+.mark img{height:42px;width:auto;filter:drop-shadow(0 0 14px #FBBF2422)}
+.mark small{font-family:'Archivo Black';font-size:.6rem;color:var(--gold);letter-spacing:.3em}
 .links{display:flex;gap:26px;margin:0 auto}
 .links a{font-size:.74rem;font-weight:800;letter-spacing:.22em;color:var(--dim);transition:color .2s}
 .links a:hover,.links a:focus-visible{color:var(--gold)}
@@ -100,7 +102,7 @@ footer{border-top:1px solid var(--line);margin-top:80px;padding:36px 0 54px}
 <body>
 
 <nav aria-label="Main navigation"><div class="wrap nav-in">
-  <a class="logo" href="index.html" aria-label="Bad Apple 17BA home"><span>17BA</span></a>
+  <a class="mark" href="index.html" aria-label="Bad Apple 17BA home"><img src="assets/logo-gold.png" alt="BAD" width="52" height="42"><small>17BA</small></a>
   <div class="links">
     <a href="index.html">PORTAL</a>
     <a href="https://17ba-bad-apple-enterprise.vercel.app" target="_blank" rel="noopener">TRADE</a>
@@ -127,7 +129,7 @@ footer{border-top:1px solid var(--line);margin-top:80px;padding:36px 0 54px}
   </div>
 
   <div class="grid" id="grid"></div>
-  <p class="empty" id="empty" hidden>Nothing here — di arsenal empty fi dat combo</p>
+  <p class="empty" id="empty" hidden>Nothing here. Di arsenal empty fi dat combo.</p>
   <button class="more" id="more" hidden>LOAD MORE ↓</button>
 </main>
 
@@ -148,8 +150,8 @@ footer{border-top:1px solid var(--line);margin-top:80px;padding:36px 0 54px}
 </dialog>
 
 <footer><div class="wrap">
-  <p class="copy">© 2026 BAD APPLE 17BA ENTERPRISE — CoreFuel. Fallen from the tree. Sharper for the fall.<br>
-  Exercise data: <a href="https://github.com/hasaneyldrm/exercises-dataset" target="_blank" rel="noopener">exercises-dataset</a> (MIT). Exercise images &amp; animations © <a href="https://gymvisual.com/" target="_blank" rel="noopener">Gymvisual</a> — redistributed with permission, attribution required. Not medical advice — check yuh form, check yuh doctor.</p>
+  <p class="copy">© 2026 BAD APPLE 17BA ENTERPRISE. CoreFuel. Fallen from the tree. Sharper for the fall.<br>
+  Exercise data: <a href="https://github.com/hasaneyldrm/exercises-dataset" target="_blank" rel="noopener">exercises-dataset</a> (MIT). Exercise images &amp; animations © <a href="https://gymvisual.com/" target="_blank" rel="noopener">Gymvisual</a>, redistributed with permission, attribution required. Not medical advice. Check yuh form, check yuh doctor.</p>
 </div></footer>
 
 <script>
