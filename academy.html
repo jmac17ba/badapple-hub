@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>17BA ACADEMY — Learn Trading</title>
+<meta name="description" content="Bad Apple 17BA Academy — Duolingo-style trading courses: psychology, probabilities, price action.">
+<style>
+:root{--bg:#0a0c0a;--panel:#131813;--line:#223022;--green:#39d353;--green2:#1f7a33;--red:#e5484d;--gold:#ffc800;--txt:#e2eae2;--dim:#7f917f;--lock:#2a332a}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--txt);font:15px/1.5 'Segoe UI',system-ui,sans-serif;padding-bottom:70px}
+.top{position:sticky;top:0;z-index:20;background:rgba(10,12,10,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:12px 16px}
+.top .logo{font-weight:800;letter-spacing:2px;font-size:14px}
+.top .logo span{color:var(--green)}
+.stat{margin-left:auto;display:flex;gap:12px;font-weight:700;font-size:14px}
+.stat b{color:var(--gold)}.stat i{font-style:normal;color:var(--green)}.stat .hh{color:var(--red)}
+.wrap{max-width:520px;margin:0 auto;padding:20px 16px}
+.unit{background:linear-gradient(135deg,var(--green2),#0f3a1c);border-radius:14px;padding:14px 18px;margin:26px 0 18px;box-shadow:0 4px 0 #0c2a14}
+.unit h2{font-size:15px;letter-spacing:1px}
+.unit p{font-size:12.5px;opacity:.85}
+.unit.locked{background:var(--lock);box-shadow:0 4px 0 #1a221a;color:var(--dim)}
+.unit .ub{margin-top:8px;background:#0a120c;border:none;color:var(--green);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700}
+.path{display:flex;flex-direction:column;align-items:center}
+.node{position:relative;width:74px;height:74px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:26px;transition:transform .1s;margin-bottom:34px;background:none}
+.node:active{transform:scale(.94)}
+.node .core{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--lock);color:#5a675a;box-shadow:0 5px 0 #161d16}
+.node.open .core{background:var(--green);color:#04120a;box-shadow:0 5px 0 #1c7a30}
+.node.vid.open .core{background:#7c5cff;color:#fff;box-shadow:0 5px 0 #4b36a8}
+.node.drl.open .core{background:#2bb3ff;color:#04202e;box-shadow:0 5px 0 #14719f}
+.node.done .core{background:var(--gold);color:#241a00;box-shadow:0 5px 0 #8a6d00}
+.node.boss .core{width:70px;height:70px;font-size:30px}
+.node .lbl{position:absolute;top:78px;width:150px;left:50%;transform:translateX(-50%);text-align:center;font-size:11px;color:var(--dim);line-height:1.25}
+.off-l{align-self:flex-start;margin-left:16%}
+.off-r{align-self:flex-end;margin-right:16%}
+.pulse .core{animation:pu 1.6s infinite}
+@keyframes pu{0%,100%{box-shadow:0 5px 0 #1c7a30,0 0 0 0 rgba(57,211,83,.5)}50%{box-shadow:0 5px 0 #1c7a30,0 0 0 12px rgba(57,211,83,0)}}
+.ov{position:fixed;inset:0;background:var(--bg);z-index:50;overflow-y:auto;display:none}
+.ov.on{display:block}
+.ovh{position:sticky;top:0;background:var(--bg);display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);z-index:5}
+.x{background:none;border:none;color:var(--dim);font-size:22px;cursor:pointer}
+.pbar{flex:1;height:12px;background:#141a14;border-radius:6px;overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--green);border-radius:6px;transition:width .3s}
+.ovb{max-width:620px;margin:0 auto;padding:22px 18px 130px}
+.ovf{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 16px;display:flex;justify-content:center;gap:10px;z-index:6}
+.big{background:var(--green);border:none;color:#04120a;font-weight:800;font-size:15px;letter-spacing:1px;padding:14px 0;width:100%;max-width:420px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 #1c7a30}
+.big:active{transform:translateY(2px);box-shadow:0 2px 0 #1c7a30}
+.big:disabled{background:#1c241c;color:#4c584c;box-shadow:0 4px 0 #121812}
+.big.gold{background:var(--gold);box-shadow:0 4px 0 #8a6d00;color:#241a00}
+.big.red{background:var(--red);box-shadow:0 4px 0 #7a1f24;color:#fff}
+.big.blue{background:#2bb3ff;box-shadow:0 4px 0 #14719f;color:#04202e}
+h3.qt{font-size:19px;margin:6px 0 16px}
+.opt{display:block;width:100%;text-align:left;background:var(--panel);border:2px solid var(--line);color:var(--txt);padding:14px;border-radius:12px;margin:9px 0;cursor:pointer;font-size:15px;box-shadow:0 3px 0 #101610}
+.opt.sel{border-color:var(--green);color:var(--green)}
+.opt.right{border-color:var(--green);background:#10240f;color:var(--green)}
+.opt.wrong{border-color:var(--red);background:#241012;color:var(--red)}
+.why{border-left:4px solid var(--gold);background:#151a10;padding:10px 12px;border-radius:0 8px 8px 0;font-size:13.5px;margin-top:12px;color:#cfd8c8}
+.pt{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px;font-size:15px}
+.rule{border:1px dashed var(--green);border-radius:12px;padding:12px 14px;margin:14px 0;font-size:14.5px}
+.jr{border-left:4px solid var(--gold);padding:8px 12px;margin:10px 0;font-size:13.5px;color:var(--dim)}
+.cele{text-align:center;padding:60px 20px}
+.cele .big-xp{font-size:44px;font-weight:900;color:var(--gold)}
+.cele h2{margin:10px 0}
+.flash{background:var(--panel);border:2px solid var(--line);border-radius:16px;min-height:190px;display:flex;align-items:center;justify-content:center;text-align:center;padding:26px;font-size:18px;cursor:pointer;margin-bottom:14px;box-shadow:0 4px 0 #101610}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--line);display:flex;z-index:30}
+.tabs button{flex:1;background:none;border:none;color:var(--dim);padding:10px 0 12px;cursor:pointer;font-size:11px;letter-spacing:.5px}
+.tabs button div{font-size:20px}
+.tabs button.on{color:var(--green)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.pill{font-size:12px;border:1px solid var(--line);border-radius:12px;padding:3px 10px;color:var(--dim)}
+.small{font-size:12.5px;color:var(--dim)}
+.g{color:var(--green)}.r{color:var(--red)}.gold{color:var(--gold)}
+.ring{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+canvas.ch{width:100%;background:#0d110d;border:1px solid var(--line);border-radius:12px;margin-bottom:12px}
+.vidbox{position:relative;width:100%;padding-top:56.25%;border-radius:12px;overflow:hidden;border:1px solid var(--line);margin-bottom:14px}
+.vidbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.tri{display:flex;gap:10px}
+.tri .big{max-width:none}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="logo">17BA <span>ACADEMY</span></div>
+  <div class="stat"><span class="hh">❤️ <span id="hh">5</span></span><span>🔥 <b id="stk">0</b></span><span>⚡ <i id="xp">0</i></span></div>
+</div>
+<div id="page"></div>
+<div class="tabs" id="tabs"></div>
+<div class="ov" id="ov"></div>
+<script>
+/* ============ COURSE 1 & 2 (psychology — original summaries, no book text) ============ */
+const C1={name:"COURSE 01 · THE FOREX MINDSET",sub:"Trading psychology foundations — concepts from J. Martinez",mods:[
+{t:"Get Excited About Trading",e:"Goals are fuel. No goal, no engine.",p:["Every trading career starts as a dream — the danger is losing the excitement when the grind starts.","A written goal converts vague hope into direction; most people never set one and drift.","Motivation is renewable: when it fades, re-set or replace the goal rather than quitting."],r:"Write ONE trading goal with a number and a date. Review it every session.",j:"What got you into trading — and is that reason still driving you?"},
+{t:"Finding a Mentor",e:"Success is a formula someone already has.",p:["Fastest route to skill: find someone succeeding at what you want, study them, copy their process.","Three steps: get close → study → do what they do.","Without a mentor you pay for the formula in time and losses instead."],r:"Steal process, not trades. Copy routines of proven traders, never their positions.",j:"Who is your trading model right now? If none — who could be?"},
+{t:"Greed & Fear Run the Market",e:"Price is crowd emotion with a chart on it.",p:["Greed escalates size until one loss ends the account — it's addictive and always wants more.","Counter-rule: never risk an amount that would change your life if lost.","Fear is the other engine — panic exits and hesitation are its chart signatures."],r:"Size every trade so a full loss changes nothing about your life.",j:"Describe your last greed-sized trade. What did it cost?"},
+{t:"Achieving Excellence",e:"Excellence is a habit, not an event.",p:["Winners are made in preparation — the win only reveals work already done.","Adversity doesn't build character at the desk; it reveals it.","Persistence past where others quit is the actual edge most traders lack."],r:"Judge yourself on process followed, never on single-trade outcome.",j:"Last losing streak: did you adjust, or abandon?"},
+{t:"Head vs Heart",e:"Think with the left brain, or the right brain trades for you.",p:["Three layers: logical mind (thinks), emotional mind (feels), subconscious (turns repetition into habit).","Smart people make dumb trades because IQ doesn't govern emotion under pressure.","Fix: repeat the logical routine until the subconscious executes it automatically."],r:"Decide entries/exits BEFORE the trade, while the logical mind is in charge.",j:"A trade where you 'knew better' but did it anyway — which mind drove?"},
+{t:"Emotional Intelligence",e:"EQ beats IQ at the trading desk.",p:["EQ = positive self-control over damaging emotions while they fire.","Winning feels invincible, losing feels fearful — both distort the next decision.","Traders know the rules and still break them when emotion drives; knowing ≠ governing."],r:"Never place a trade while feeling invincible or desperate — both are impaired states.",j:"After a big win, what does your next trade usually look like?"},
+{t:"The Importance of Change",e:"Success sticks to people who already act like it.",p:["Three managed states: poverty (paycheck-to-paycheck), mediocrity (getting by), success (assets on plan).","You don't find success — you become its equivalent, then it finds you.","Changing results requires changing daily habits first."],r:"Change the habit first; the result follows the habit, never the reverse.",j:"Which state are you managing today — and what habit keeps you there?"},
+{t:"The Trader's Constitution",e:"Written rules are character under pressure.",p:["A constitution: written laws for your conduct — made calm, obeyed emotional, hard to change.","Obeying your own rules rebuilds personality: discipline practiced becomes character owned.","An EA is a constitution in code — manual trading needs the same document."],r:"If a rule can be broken when tilted, it isn't written clearly enough.",j:"Which of your rules break under emotion — and which emotion?"},
+{t:"Dealing with Frustration",e:"Frustration is feedback about process, not identity.",p:["Frustration compounds: spurts → days → a frustrated career, unless the source is fixed.","'No clear strategy' / 'I'll never get this' — each frustrated thought marks a process gap.","When frustrated: stop, name the missing piece, fix that piece, then resume."],r:"Frustrated = flat. No trades until the cause is named and addressed.",j:"Your three most common frustrated thoughts → what gap does each mark?"},
+{t:"Dealing with Anger",e:"Anger is fear wearing armor.",p:["Anger is a threat response — chemistry spikes, decision quality collapses.","Revenge trading is anger trading: attacking the market to recover a loss it doesn't know about.","The skill is shortening recovery: feel it, name it, cool down, THEN decide."],r:"Painful loss → mandatory 15+ min cooldown before the next order.",j:"How long does anger hold your wheel at the desk?"},
+{t:"Attitude → Results",e:"Thought → belief → action → result.",p:["Every achievement runs the same pipeline: thought hardens into belief, belief drives action.","Attitude is chosen daily like clothes — and compounds into a career.","Average strategy + disciplined optimist beats brilliant strategy + pessimist."],r:"Choose the session's attitude before the charts open.",j:"What belief about yourself is currently driving your trading actions?"},
+{t:"Patience & Self-Control",e:"Count down before you blast off.",p:["Patience = capacity to wait for the boring setup and tolerate delay.","Marshmallow study: delayed gratification predicts success — waiting IS the skill.","Temptation at the desk = off-plan trades: chasing, early entries, oversizing after wins."],r:"No setup, no trade. Boredom is a position — usually the best-paying one.",j:"Of your last 10 trades, how many were full-checklist setups?"},
+{t:"Listening with Humility",e:"Trade what the chart says, not what you want.",p:["Hearing acknowledges; listening comprehends — most traders 'hear' charts while telling them what to do.","We enter when the chart screams stay out, because ego outvotes observation.","The trader who needs to be right loses to the one who wants to see clearly."],r:"If you're arguing with the chart, it already won. Close or stand aside.",j:"When did you last hold a position the chart had invalidated?"},
+{t:"Trade with Confidence",e:"Courage is mastery of fear, not absence.",p:["The Four Fears: losing money · missing out · profit turning into loss · being wrong.","Interrogate fear: what exactly? worst case? MOST PROBABLE case? The monster rarely survives.","Confidence is built from evidence: tested rules, small size, survived losses."],r:"Fear spikes → ask worst case vs probable case. Trade the probable, plan the worst.",j:"Which of the Four Fears costs you the most money?"},
+{t:"Protect Yourself at All Times",e:"Blindsides are scheduled. Armor up before.",p:["Bad events are guaranteed; you control the response, never the event.","Layers: capital (stops always), emotions (routines), lifestyle (never trade needed money).","An unprotected position lets the market choose your loss size."],r:"No order without a stop attached. Ever.",j:"Where are you unprotected right now — capital, emotions, or lifestyle?"}],
+quiz:{
+easy:[[0,"The starting fuel of every trading career is:",["A big account","A goal or dream","A mentor","A system"],1,"Goals create the motivation that powers everything else."],
+[1,"The success shortcut is:",["Trial and error","Copying a proven person's process","College","Bigger size"],1,"Find the formula-holder, study them, do what they do."],
+[2,"Never risk money that…",["…is borrowed","…would change your life if lost","…is under $1000","…isn't insured"],1,"Losses must be survivable financially AND emotionally."],
+[3,"Excellence is:",["Talent","A onetime event","A habit","Luck"],2,"You are what you repeatedly do."],
+[4,"The three layers of mind: thinking, feeling, and…",["dreaming","subconscious habit","memory","instinct"],1,"The subconscious turns repetition into automatic habits."],
+[5,"Emotional intelligence is:",["High IQ","Self-control over damaging emotions","Never feeling fear","Reading people"],1,"Governing your own destructive emotions while they fire."],
+[7,"A trader's constitution is:",["A strategy","Written personal laws","A broker form","A journal"],1,"Rules written calm, obeyed under pressure."],
+[9,"Anger is ultimately a form of:",["Greed","Fear","Confidence","Skill"],1,"It's a threat response — fear in disguise."],
+[11,"The marshmallow study showed the value of:",["Sugar","Delayed gratification","IQ","Speed"],1,"Waiting for the bigger reward predicted later success."],
+[13,"Courage is:",["No fear","Mastery of fear","Ignoring fear","Winning"],1,"Everyone feels fear; courage acts correctly despite it."]],
+medium:[[2,"Gold runs $40 your way in minutes. Greed's whisper is:",["Take profit","Add triple size — this is the one","Stop to breakeven","Journal it"],1,"Greed escalates size at the worst moment; pre-set sizing is the counter."],
+[5,"5 wins in a row, you feel invincible. Correct move:",["Double size","Trade normally — rules unchanged","Quit while ahead","Withdraw all"],1,"Invincibility is an impaired state; rules stay identical."],
+[7,"Constitution says 2 trades/day max. A perfect 3rd appears:",["Take it","Skip — the rule exists for THIS moment","Half size","Rewrite the rule now"],1,"Rules are written calm to be obeyed tempted."],
+[9,"Stop slips, rage rises. Best action:",["Re-enter bigger","Walk away 15+ min","Switch pairs","Remove stops"],1,"Cooldown first — anger chemistry ruins the next choice."],
+[11,"Three hours, no valid setup:",["Lower the bar","Stay flat — boredom pays","Drop to M1","Coin flip"],1,"Forcing entries converts boredom into losses."],
+[12,"Long position; chart breaks support with lower highs. Listening =",["Hold and hope","Exit/reduce — idea invalidated","Average down","Hide the chart"],1,"Trade what price does, not what your position needs."],
+[13,"Your +2R runner hits +1R, you panic-close vs plan. Which fear?",["Missing out","Profit turning into loss","Being wrong","Loss"],1,"Cutting winners early caps the payoff ratio your edge needs."],
+[8,"Frustrated all week. Correct order:",["Trade more","Stop → name the gap → fix → resume","New strategy daily","Blame conditions"],1,"Frustration marks a specific gap; fix the gap, not the symptom."],
+[3,"4 losses that all followed rules:",["Change system now","Keep executing — judge over a big sample","Double size","Drop stops"],1,"Rule-following losses are tuition, not failure."],
+[14,"EA had no stop during news (bug). Lesson:",["EAs unsafe","Verify protection BEFORE events, every position","News is unfair","Smaller size"],1,"Protection is checked proactively — after the blindside is too late."]],
+hard:[[13,"FundedNext eval, day 3, −2%. B-grade setup appears:",["Take it — evals need aggression","Skip: eval pressure is fear dressed as logic","Half size compromise","Quit"],1,"Pressure reframes mediocre setups as 'necessary' — name the fear, don't obey it."],
+[2,"Backtest: PF 1.41 but one spike nearly zeroed the account:",["Ship it","Size so the worst historical event survives, then judge edge","Delete that month","Trade Feb only"],1,"Edge means nothing if one tail event ends the account."],
+[7,"Your EA never breaks rules; you override it in drawdowns. You have:",["Two systems and no constitution","A hybrid edge","Better control","A hedge"],0,"Overrides ARE rule-breaks; the constitution must govern the operator."],
+[9,"Revenge trade after a slip WINS big. Constitutional response:",["Winning validates it","Log a violation — profitable rule-breaks teach the worst lessons","Raise size","Delete the log"],1,"It trains the subconscious to break rules — the most expensive win."],
+[4,"Why does moving your checklist INTO an EA work psychologically?",["Computers are smarter","Execution leaves the feeling mind — code can't feel the Four Fears","Speed only","No rules needed"],1,"Automation is engineered discipline."],
+[13,"Rank the Four Fears by damage to a BREAKOUT trader:",["FOMO > loss > wrong > profit-loss","Profit-loss > wrong > loss > FOMO","All equal","Loss > FOMO > wrong > profit-loss"],1,"Breakout math needs runners: cutting winners destroys the payoff ratio the edge depends on."],
+[12,"Your breakout system bled 8 weeks in chop. Humility at SYSTEM level:",["Abandon breakouts","Read the regime evidence — gate or pause; the market says 'not now'","Force more trades","Blame the broker"],1,"Charts talk at strategy level too; evidence outranks attachment."],
+[6,"4 strategies automated, but you interfere compulsively. What matters?",["Better strategies","Changing the operator — the old identity still manages the system","More screens","Faster VPS"],1,"Systems inherit the operator's psychology through interference."],
+[0,"A viral flip-bot clip tempts you to rebuild everything. Goal-discipline:",["Rebuild — innovate","Sandbox it as a small experiment; the goal keeps the pipeline","Ignore all new ideas","All-in"],1,"Goals filter opportunities: new ideas get sandboxed, not the driver's seat."],
+[10,"'Market took my money' vs 'my process leaked money' predicts:",["Nothing","Everything: ownership produces fixes, blame produces repeats","First is more accurate","Neither with an EA"],1,"Ownership converts losses into process improvements."]]},
+cards:[["The Four Fears","1 Losing money · 2 Missing out · 3 Profit→loss · 4 Being wrong",13],
+["Anger is really…","Fear in disguise — threat response that wrecks decisions",9],
+["Excellence is…","A habit — you are what you repeatedly do",3],
+["Three layers of mind","Logic · Emotion · Subconscious habit-executor",4],
+["Position size rule","Never risk what would change your life if lost",2],
+["Trader's constitution","Written calm · obeyed emotional · hard to change",7],
+["Mentor formula","Get close → study → copy PROCESS (never trades)",1],
+["Fear interrogation","Worst case? MOST PROBABLE case? Trade probable, plan worst",13],
+["Achievement pipeline","Thought → belief → action → result",10],
+["Cooldown rule","Painful loss → 15+ min away before any order",9],
+["Boredom at the desk is","A position — usually the best-paying one",11],
+["A profitable rule-break is","The most expensive win — trains rule-breaking",7],
+["Stop loss =","The trade's seatbelt. No order without one",14],
+["Automation works because","Execution leaves the feeling mind — code can't fear",4],
+["Ownership frame","'My process leaked' → fixable. 'Market took it' → repeatable",10]]};
+const C2={name:"COURSE 02 · TRADING IN THE ZONE",sub:"Probabilistic mindset — concepts from M. Douglas",mods:[
+{t:"Anything Can Happen",e:"The market is other people's beliefs in motion.",p:["Any single trade can lose no matter how perfect the setup — one large trader elsewhere can move price against you.","Because anything can happen, certainty about one trade is always an illusion.","Releasing per-trade expectation is what lets you follow rules calmly."],r:"Never bet certainty on one trade. Certainty lives only in the sample.",j:"Recall a 'sure thing' trade that lost. What did you tell yourself before it?"},
+{t:"Think in Probabilities",e:"Trade like the casino, not the gambler.",p:["An edge is only a higher probability of one outcome over many trials — nothing more.","The casino doesn't fear one blackjack loss; it trusts the math across thousands of hands.","Single outcomes are random; series are predictable. Your job is running the series."],r:"Judge every decision over a 20+ trade sample, never over one result.",j:"Do you emotionally treat each trade as the verdict on your system?"},
+{t:"Random Distribution",e:"You can't know WHICH trade in the series pays.",p:["Within a real edge, wins and losses arrive in random order — streaks mean nothing about the next trade.","Skipping signals after losses breaks the sample your edge needs to pay you.","Consistency of execution is the only thing that converts an edge into money."],r:"Take every valid signal. Cherry-picking after losses destroys the math.",j:"After 3 losses, do you take the 4th valid signal at full size?"},
+{t:"The Five Truths",e:"The probabilistic creed.",p:["1) Anything can happen. 2) You don't need to know what happens next to make money.","3) Wins and losses distribute randomly within an edge. 4) An edge is just a probability tilt.","5) Every market moment is unique — this setup is not that setup, no matter the resemblance."],r:"Read the Five Truths before each session until they're reflexes.",j:"Which truth do you resist the most, and how does it show in your trades?"},
+{t:"Full Responsibility",e:"The market owes you nothing.",p:["The market produces neutral information; you assign the meaning and produce the results.","Blaming the market, broker, or news hands away the only thing you control: your framework.","Full responsibility is power: if you caused it, you can fix it."],r:"Every loss gets one question: what part of MY framework produced this?",j:"What's your favorite external blame — and what does it protect you from fixing?"},
+{t:"Define & Accept Risk",e:"Accepted risk cannot hurt you into errors.",p:["Define the exact loss before entry — price AND money — then genuinely accept it as spent.","Unaccepted risk turns normal price movement into threat, and threat produces fear errors.","If the potential loss still bothers you, the size is wrong or the acceptance is fake."],r:"Before entry: 'This trade costs $X if wrong, and that's fine.' If it isn't fine — resize.",j:"On your last stop-out, was the loss already accepted, or did it shock you?"},
+{t:"The Carefree State",e:"Objective, open, no hesitation.",p:["The goal state: monitoring the market without fear or euphoria — nothing to prove, protect, or avenge.","Hesitation and overtrading are both symptoms of unaccepted risk, not information problems.","Consistency is a state of mind you bring to any market — not something a market gives you."],r:"Hesitating on valid signals? Overtrading? Diagnose risk-acceptance, not the strategy.",j:"Describe your mental state during your best trading week. What made it carefree?"},
+{t:"Mechanical → Intuitive",e:"Master the mechanical stage first.",p:["Development stages: mechanical (fixed rules, build the sample), then subjective, then intuitive.","The mechanical stage exists to build consistency and self-trust — most traders skip it and stay random.","Your EAs are the mechanical stage industrialized: rules executing without negotiation."],r:"Earn discretion. No rule-bending until 100+ trades of pure mechanical execution.",j:"Which stage are you honestly in — and are you acting like it?"}],
+quiz:{
+easy:[[0,"Why can any single trade lose?",["Bad luck only","Other traders' actions can move price against any setup","Brokers cheat","Spreads"],1,"The market is other people's beliefs — anything can happen."],
+[1,"An edge is:",["A guarantee","A higher probability over many trials","Inside info","A pattern that always works"],1,"Nothing more than a probability tilt across a series."],
+[1,"The casino model teaches:",["Avoid losses","Trust the math across the series, not one hand","Bet bigger when hot","Quit after wins"],1,"Single outcomes random; series predictable."],
+[2,"Within an edge, wins and losses arrive:",["In patterns","Randomly ordered","Wins first","After news"],1,"Streaks say nothing about the next trade."],
+[3,"How many Fundamental Truths are there?",["Three","Four","Five","Seven"],2,"Five — the probabilistic creed."],
+[3,"'Every moment in the market is…'",["repeatable","unique","predictable","rigged"],1,"This setup is never exactly that setup."],
+[4,"The market produces:",["Threats","Neutral information","Signals for you","Debts to traders"],1,"You assign meaning; you produce results."],
+[5,"Risk is truly accepted when:",["The stop is set","The loss already feels spent and fine","You hedge","You're confident"],1,"Accepted risk can't scare you into errors."],
+[6,"Hesitation on valid signals signals:",["Weak strategy","Unaccepted risk","Low IQ","Bad market"],1,"It's a risk-acceptance symptom, not an information problem."],
+[7,"The first development stage is:",["Intuitive","Subjective","Mechanical","Emotional"],2,"Fixed rules build the sample and self-trust."]],
+medium:[[0,"Perfect setup loses instantly on a random spike. Correct read:",["Setup was wrong","Anything can happen — grade the decision, not the outcome","Market is rigged","Stop trading"],1,"Good decisions can lose; that's what probability means."],
+[1,"Your EA has PF 1.41 over 50 trades. One losing week means:",["Edge is gone","Nothing yet — the series is the unit of judgment","Double size to recover","Rewrite the EA"],1,"Judge the sample, not the slice."],
+[2,"After 3 stop-outs you skip signal #4 — it wins. The real cost:",["None, one trade","You broke the sample your edge needs — the math is corrupted","Small","The win you missed"],1,"Cherry-picking after losses is how traders lose with winning systems."],
+[3,"A setup looks 'identical' to yesterday's winner. Truth #5 says:",["Same result coming","Unique moment — same rules, zero carried certainty","Skip it","Double it"],1,"Resemblance is not repetition."],
+[4,"Slippage on news kills your trade. Full responsibility response:",["Broker's fault","Was trading news within MY framework? Fix the framework","Market's fault","Bad luck, move on"],1,"If your framework allowed it, your framework produced it."],
+[5,"You check P/L every 30 seconds mid-trade. Diagnosis:",["Discipline","Risk not truly accepted — the loss still threatens you","Focus","Normal"],1,"Accepted risk doesn't need monitoring; the outcome is already fine."],
+[6,"Euphoric after 3 wins, seeing setups everywhere. Zone reading:",["Hot streak — press it","Euphoria distorts like fear — return to mechanical rules","Natural talent","Add size"],1,"The carefree state is neutral, not high."],
+[7,"You want to 'trust gut' after 20 trades:",["Intuition earned","Too early — intuition is compressed experience; 20 trades compresses nothing","If it feels right","Gut beats rules"],1,"Discretion is earned by sample size."],
+[5,"Right before entry the $ risk makes you uneasy:",["Enter anyway — courage","Resize until the loss is genuinely fine, then enter","Never trade again","Widen the stop"],1,"Unease = unaccepted risk = future fear errors."],
+[4,"Your bot lost because YOU disabled the session filter:",["Bot's fault","Yours — the operator is part of the system","Filter's fault","Market regime"],1,"The framework includes the hand on the switch."]],
+hard:[[1,"Breakout EA: PF 1.41 but profits concentrated Jan–Feb. Probabilistic read:",["Edge is fake","Edge may be regime-conditional — slice the sample by condition, don't just aggregate","More trades only","Ship it"],1,"Ask WHICH distribution you're sampling from."],
+[2,"One of your 4 EAs is 0-for-7 this month, others fine:",["Kill it","7 trades decides nothing — check rule-adherence and regime, not the streak","Double its size","Merge them"],1,"A streak within an edge is noise until the sample matters."],
+[3,"Truth #2 applied to your tester A/Bs:",["Predict better","Stop optimizing prediction — optimize consistent execution of positive expectancy","More indicators","News feeds"],1,"The money is in running the edge, not forecasting."],
+[5,"Eval account: you cut size to 0.1% because losses 'feel bad':",["Prudent","Faked acceptance by shrinking — the edge can't reach the target; accept REAL risk or skip the eval","Perfect","Go 5%"],1,"Under-sizing is fear wearing a prudence costume."],
+[6,"You feel nothing on wins or losses, execute everything, slightly bored:",["Burnout — stop","That IS the zone — carefree objectivity; protect this state","Depression","Overconfidence"],1,"The goal state feels unremarkable, not euphoric."],
+[7,"Your EAs' stage vs YOUR remaining stage-work:",["EAs are intuitive; done","EAs are pure mechanical; the human's work is operator consistency — no overrides mid-sample","EAs skip stages","Stages don't apply"],1,"The machine executes; the operator must match it."],
+[4,"Journal shows losses cluster on days you 'felt sure':",["Feel less","Certainty-feeling = signal to check rules HARDER — confidence isn't evidence","Trade sure days only","Coincidence"],1,"The feeling of certainty is where Truth #1 gets forgotten."],
+[0,"Design a rule from Truth #1 for manual NQ trades:",["No rule needed","Bracket every entry (stop+target) at order time — ANY trade can instantly go wrong","Mental stops fine","Watch closely"],1,"Protection must be structural, not attentional."],
+[2,"League test: 50 trades, 56% win. Valid statement:",["System wins 56% of the time","This SAMPLE won 56%; true rate nearby but uncertain — act, keep measuring","Next trade 56% likely","6 straight losses impossible"],1,"Estimates, not truths; keep sampling."],
+[5,"One structural change making risk-acceptance automatic across your farm:",["Bigger accounts","Fixed fractional risk enforced IN CODE on every EA — pre-accepted by design","Wider stops","Fewer trades"],1,"Code-enforced sizing is acceptance you can't un-decide under stress."]]},
+cards:[["The Five Truths","Anything can happen · Don't need to know next · Random distribution · Edge = probability tilt · Every moment unique",3],
+["Casino model","Trust the math across the series; one hand means nothing",1],
+["Random distribution rule","Take EVERY valid signal — cherry-picking breaks the math",2],
+["An edge is","Only a higher probability over many trials — nothing more",1],
+["Accepted risk","Loss already feels spent and fine BEFORE entry — else resize",5],
+["Hesitation means","Unaccepted risk, not an information problem",6],
+["The carefree state","Objective, open, nothing to prove/protect/avenge",6],
+["Full responsibility","Market = neutral info; your framework produces results",4],
+["Development stages","Mechanical → Subjective → Intuitive. Earn each",7],
+["Truth #5 in practice","'Identical' setup = unique moment; same rules, no carried certainty",3],
+["Under-sizing is","Fear wearing a prudence costume",5],
+["Judge decisions by","The 20+ trade sample, never the single outcome",1],
+["Streaks within an edge","Noise. They say nothing about the next trade",2],
+["Certainty feeling =","Signal to check rules HARDER",4],
+["Operator consistency","The human must match the EA: no overrides mid-sample",7]]};
+/* ============ COURSE 3 · PRICE ACTION ============ */
+const C3={name:"COURSE 03 · PRICE ACTION",sub:"Structure, levels, breakouts, sweeps — with REAL chart drills (gold & NQ)",mods:[
+{t:"Market Structure",e:"Trend = a staircase you can point at.",p:["Uptrend: higher highs AND higher lows. Downtrend: lower highs AND lower lows. Anything else is a range.","A break of the last swing low in an uptrend (or high in a downtrend) is a break of structure — the first objective warning the trend is changing.","Structure is the skeleton; every other tool (levels, candles, patterns) hangs on it."],r:"Before ANY trade: mark the last swing high and swing low. If you can't, you have no trade.",j:"Pull up your last loss — was structure actually in your direction?"},
+{t:"Support & Resistance",e:"Levels are where orders pooled — memory in the market.",p:["S/R levels are zones, not lines — mark the area where price reacted repeatedly, not one exact price.","Old highs/lows attract price because stops and pending orders pool beyond them (liquidity).","A broken resistance often flips to support (and vice versa) — the retest of a flip level is a classic entry."],r:"Draw levels on H4/D1, execute on lower timeframes. Levels from your entry TF are noise.",j:"How many levels are on your chart right now? If >6, which 3 actually matter?"},
+{t:"Candles Tell Stories",e:"Wick = rejection. Body = conviction.",p:["A long wick into a level means one side tried and got smacked — rejection. A big body means one side is in control — conviction.","The confirmation candle: after price reaches your zone, wait for a candle that CLOSES in your direction with a rejection wick — that's the market agreeing with you.","Pattern names (pin bar, engulfing) matter less than location: the same candle at a random spot means nothing, at a key level it's a signal."],r:"Closed candles only. The candle isn't saying anything until it closes.",j:"Do you enter on forming candles? What has that cost you?"},
+{t:"Ranges & Breakouts",e:"Compression precedes expansion.",p:["Markets breathe: quiet compression (range) → violent expansion (breakout) → back to quiet. The range IS the setup.","The breakout play: tight range, a candle CLOSES outside it, enter with the break — stop on the far side of the range.","Most breakouts that fail were never confirmed: a wick poking out is not a breakout; a CLOSE outside is."],r:"No close outside the range = no breakout = no trade.",j:"Your Breakout EA trades exactly this. Can you spot its setup by eye before it fires?"},
+{t:"Pullbacks & Trend Entries",e:"The trend pays — but shallow pullbacks lie.",p:["Trend continuation: impulse → pullback → next impulse. The entry is where the pullback ends, at structure or a level.","Danger: shallow pullbacks in a hot market either don't reach your level or run you over — demand real structure (2+ bars against trend, into a zone).","Confirmation beats prediction: let the pullback END (confirmation candle) instead of catching it mid-fall."],r:"Pullback entry needs THREE things: trend structure + a level + a confirmation candle. Two out of three is a pass.",j:"Your Onion EA lost with shallow pullbacks. What was missing per this lesson?"},
+{t:"Liquidity Sweeps",e:"Stops pool beyond obvious levels — and price hunts them.",p:["Beyond every obvious high/low sit clusters of stops. Price often spikes through, fills the big players, and reverses — the sweep.","Sweep-and-reclaim: price runs the level, FAILS to hold beyond it, and closes back — that failure is the signal; enter on the reclaim.","An obvious level that everyone sees usually gets swept before the real move — expect the fake before the break."],r:"When price breaks an obvious level, first ask: sweep or real? The close tells you.",j:"Your NQ sweep-reclaim long — write down the exact sequence you traded."},
+{t:"Chart Patterns Decoded",e:"Patterns are structure + liquidity wearing costumes.",p:["Head & shoulders = a failed higher high plus a break of structure. Double top = a swept high that failed twice.","Flags/pennants = pullbacks in an impulse. Triangles = compression (a range that's tilting).","Trade the structure the pattern reveals, not the pattern's name — names don't move price, orders do."],r:"For any pattern, translate it: where's the structure break, where's the trapped liquidity?",j:"Take one textbook pattern and rewrite it in structure+liquidity language."},
+{t:"Stops & Targets",e:"Stop where the idea dies. Target where the opposing orders live.",p:["The stop goes where the trade idea is INVALID (beyond the swept low, outside the range) — never at a round dollar amount you're 'comfortable' losing.","Targets belong at opposing liquidity: the next level, the prior high/low — where the market is likely to pause or turn.","Think in R-multiples: risk 1R, structure the exit for 2R+ — partial at 1R with a runner is a robust default (your EAs' exact exit)."],r:"If you can't say WHERE the idea is invalid, you don't have an idea — you have a hope.",j:"On your last 5 trades, was each stop at invalidation or at a comfort number?"}],
+quiz:{
+easy:[[0,"An uptrend is defined by:",["Higher highs only","Higher highs AND higher lows","Green candles","Volume"],1,"Both are required — that's the staircase."],
+[0,"Break of structure means:",["Any red candle","Break of the last swing low (in an uptrend)","A news spike","RSI overbought"],1,"The first objective warning a trend is changing."],
+[1,"S/R levels should be drawn as:",["Exact lines","Zones where price reacted repeatedly","Trendlines only","Fibonacci"],1,"Zones, not lines — reactions cluster in areas."],
+[1,"Beyond old highs/lows sit:",["Nothing","Pools of stops and pending orders (liquidity)","Dividends","Gaps only"],1,"That's why price is attracted to them."],
+[2,"A long wick into a level signals:",["Conviction","Rejection","Volume","Nothing"],1,"One side tried and got smacked back."],
+[2,"When is a candle's message valid?",["While forming","On close","At the open","On volume spike"],1,"Closed candles only — forming candles change their story."],
+[3,"A real breakout requires:",["A wick outside the range","A CLOSE outside the range","High volume","News"],1,"Wicks poke; closes commit."],
+[4,"A trend continuation entry happens:",["Mid-impulse","Where the pullback ends at structure/level","At any dip","On a gut feeling"],1,"Impulse → pullback ends → next impulse."],
+[5,"A liquidity sweep is:",["A real breakout","A spike through a level that fails and reverses","A gap fill","A news candle"],1,"Stops get run, then price closes back — the failure is the signal."],
+[7,"The stop loss belongs:",["At a round number","Where the trade idea is invalid","1% away always","Nowhere with EAs"],1,"Beyond the structure that defines the idea."]],
+medium:[[0,"Price makes a higher high, then breaks the last higher low. You are long. Read:",["Add — discount price","Structure broke — the uptrend thesis is objectively damaged; reduce/exit","Hold — one low means nothing","Flip short instantly"],1,"BOS is the first objective trend warning; act on evidence, not hope."],
+[1,"Price approaches a D1 resistance zone for the 4th time in a strong uptrend:",["Short it — resistance is resistance","Careful — repeated tests weaken levels; watch for a break or sweep instead of blind fading","Buy blindly","Close the chart"],1,"Each test consumes the orders defending the level."],
+[2,"At your support zone a candle closes strongly bullish with a long lower wick:",["Wait for 5 more candles","That's the confirmation candle — the zone plus rejection plus close aligns","Short the wick","Ignore — wicks are random"],1,"Location + rejection + directional close = the story you wanted."],
+[3,"Price wicks 10 points above the range high then closes back inside:",["Breakout — buy","No breakout — and possibly a sweep; watch the other side now","Buy half","Range is broken"],1,"A wick outside + close inside is the classic fake/sweep signature."],
+[4,"Uptrend, price pulls back 2 bars into a flip level and prints a bullish confirmation candle:",["Skip — pullbacks are traps","All three conditions met: trend + level + confirmation — valid entry","Wait for RSI","Short the pullback"],1,"That's the complete continuation checklist."],
+[5,"Obvious equal lows sit below the market with everyone watching them:",["Buy the lows blindly","Expect a sweep through them before any real bounce — plan entries on the reclaim","Sell the lows blindly","Equal lows always hold"],1,"Obvious liquidity gets taken; the reclaim tells the truth."],
+[6,"You see a 'head and shoulders'. The structural translation is:",["A magic sell pattern","A failed higher high + break of structure — short the structure, not the name","Random shape","Buy signal"],1,"Patterns are structure in costume."],
+[7,"Your sweep-reclaim long: entry 29,923, swept low 29,896. The stop belongs:",["At 29,920 — tight","Below the swept low (~29,890s) — beyond invalidation","At a round 29,900","No stop, watch it"],1,"If price goes back below the swept low, the idea is dead — that's where the stop lives."],
+[3,"Your Breakout EA requires the range ≤3×ATR before trading the break. Why?",["Speed","Compression before expansion — a wide sloppy range isn't a coiled spring","Fewer trades only","ATR is fancy"],1,"The compression check IS the setup; the break is just the trigger."],
+[4,"Hot uptrend, price pulls back one bar and stalls mid-air, no level below:",["Buy — trend is up","Pass — no structure, no level: two of three conditions missing","Buy with a wide stop","Short the stall"],1,"Shallow mid-air pullbacks either never fill or run you over — your Onion data proved it."]],
+hard:[[5,"NQ sweeps a session low, reclaims it, but the reclaim candle closes weak with a big top wick:",["Enter — sweep happened","Wait — the reclaim lacks conviction; a weak close after a sweep often gets a second sweep","Short instead","Add to watchlist and walk away"],1,"The sweep sets the stage; the RECLAIM quality decides the trade."],
+[3,"Backtest insight: your breakout entries during compression paid, but entries after ATR already expanded lost. Structural reason:",["Randomness","Post-expansion breaks are late — the move the compression stored has already been spent","ATR is broken","Need more indicators"],1,"You proved this with the vol-gate A/B: expansion filters LAG a compression-triggered edge."],
+[0,"H4 uptrend, M15 downtrend. You want to long an M15 level. Frame it:",["Conflict — never trade","M15 counter-move into an H4 level is exactly how continuation entries form — but the M15 must confirm first","Long anywhere, H4 wins","Short — M15 wins"],1,"Higher TF gives direction; lower TF gives the entry — after confirmation."],
+[7,"Two trades, same entry: A) stop below the swept low (8pts), B) stop at 'comfortable' 20pts. Same target. The REAL difference:",["B is safer","A risks less per unit AND sits at invalidation; B pays extra for comfort and still dies if the idea fails","Identical expectancy","B has better win rate so it's better"],1,"Comfort-stops cost R-multiple without adding protection where it matters."],
+[1,"A flip level held 3 times this week. Your EA shorts breakouts through it tonight. You should:",["Disable the EA — the level is strong","Nothing — the EA's edge is measured across the sample, not this level; interference corrupts the math","Halve size manually","Reverse the signal"],1,"Discretionary overrides on a mechanical edge = two systems, no constitution (and no sample)."],
+[6,"A textbook 'double top' forms — but the second top swept the first by 5 points before dropping:",["Weaker signal — pattern imperfect","STRONGER — the sweep took the buy-stops above top #1 before failing: liquidity + failure beats a clean shape","Invalid pattern","Buy it"],1,"The 'imperfection' is the liquidity event that powers the reversal."],
+[2,"Confirmation candles improve entries but cost fill price. When is skipping confirmation defensible?",["Never","When the level itself was just swept-and-reclaimed — the reclaim IS the confirmation event","Always — speed wins","When you feel sure"],1,"One confirmation event is required; it can be the reclaim instead of the candle."],
+[4,"Design: convert 'trend + level + confirmation' into EA logic like your farm uses:",["Impossible to code","EMA-structure filter + zone proximity check + close-direction/wick test on bar 1 — three booleans ANDed","Buy any dip 2%","Neural net required"],1,"Every discretionary checklist decomposes into testable booleans — that's the farm's whole method."],
+[5,"Why do sweeps CLUSTER at session opens (London/NY)?",["Random","Volume arrives → the day's first business is clearing the resting stops built overnight","Banks are evil","Spreads widen"],1,"New session liquidity hunts stale liquidity — that's why your profitable hours are the opens."],
+[7,"Partial at 1R + runner with trailed stop (your EAs' exit). What does it buy you psychologically AND mathematically?",["Nothing — full TP is optimal","Banks proof-of-progress (kills profit-to-loss fear) while keeping the tail that pays the breakout edge","Only feels good","Only math"],1,"The exit is engineered for both the equity curve AND the operator's nerves."]]},
+cards:[["Uptrend definition","Higher highs AND higher lows — both, or it's a range",0],
+["Break of structure","Last swing low breaks (uptrend) → thesis objectively damaged",0],
+["Levels are","ZONES from H4/D1 where price reacted — not exact lines",1],
+["Liquidity lives","Beyond obvious highs/lows — stops pool there",1],
+["Wick vs body","Wick = rejection · Body = conviction",2],
+["Confirmation candle","At your zone: closes in your direction + rejection wick",2],
+["Real breakout","A CLOSE outside the range — wicks don't count",3],
+["Compression rule","Tight range (≤3×ATR) = coiled spring; wide range = noise",3],
+["Continuation checklist","Trend structure + level + confirmation candle — all three",4],
+["Sweep-and-reclaim","Spike through level → FAILS to hold → close back = signal",5],
+["Obvious levels get","Swept before the real move — expect the fake first",5],
+["Patterns decoded","H&S = failed HH + BOS · Double top = twice-failed sweep",6],
+["Stop placement","Where the idea is INVALID — beyond structure, never comfort",7],
+["Targets belong","At opposing liquidity — next level, prior high/low",7],
+["Session opens sweep because","New volume's first job is clearing overnight stops",5]]};
+const C3D=[
+[[100,101.2,99.6,101],[101,102.5,100.8,102.2],[102.2,102.8,101,101.4],[101.4,103.6,101.2,103.3],[103.3,104.8,103,104.5],[104.5,105,103.2,103.6],[103.6,106,103.4,105.7],[105.7,107.2,105.4,106.9],[106.9,107.4,105.2,105.6],[105.6,108.3,105.4,108],[108,109.5,107.7,109.2],[109.2,109.8,107.3,107.7],[107.7,110.6,107.5,110.3],[110.3,111.8,110,111.5]],
+[[100,101,99.5,100.8],[100.8,105.1,100.5,104.2],[104.2,105.2,103,103.4],[103.4,104.5,101.8,102.1],[102.1,105.3,102,104.6],[104.6,105.1,102.9,103.2],[103.2,103.8,101.5,101.9],[101.9,105.2,101.7,104.9],[104.9,106.8,104.6,106.5],[106.5,107.2,105.6,106.9],[106.9,107,104.9,105.2],[105.2,105.6,104.7,105.4],[105.4,107.8,105.2,107.5],[107.5,109,107.2,108.7]],
+[[106,106.5,104.8,105.1],[105.1,105.5,103.6,103.9],[103.9,104.3,102.4,102.7],[102.7,103.2,101.2,101.5],[101.5,102,100.2,100.6],[100.6,101.1,99.4,100.9],[100.9,101,98.9,100.8],[100.8,102.6,100.5,102.4],[102.4,103.5,102,103.2],[103.2,104.4,102.9,104.1],[104.1,105.3,103.8,105],[105,106.2,104.6,105.9]],
+[[101,102,100.1,101.5],[101.5,102.1,100.4,100.8],[100.8,101.9,100,101.2],[101.2,102,100.3,101.8],[101.8,102.1,100.6,100.9],[100.9,101.7,100.1,101.4],[101.4,102,100.2,100.6],[100.6,101.8,100.1,101.5],[101.5,102.1,100.4,101],[101,103.9,100.8,103.7],[103.7,105.2,103.3,104.9],[104.9,106,104.4,105.6]],
+[[100,102.2,99.8,102],[102,104.3,101.8,104],[104,106.2,103.7,105.9],[105.9,106.1,104.9,105.1],[105.1,105.3,104.1,104.3],[104.3,104.6,103.3,103.6],[103.6,104.9,103.4,104.7],[104.7,106.4,104.5,106.1],[106.1,107.8,105.9,107.5],[107.5,108.9,107.2,108.6]],
+[[104,104.5,102.9,103.2],[103.2,103.6,101.8,102.1],[102.1,102.6,100.1,100.5],[100.5,101.9,100,101.6],[101.6,102.2,100.1,100.4],[100.4,101.5,100.05,101.2],[101.2,101.4,98.8,100.4],[100.4,102.3,100.2,102.1],[102.1,103.6,101.9,103.3],[103.3,104.8,103,104.5],[104.5,105.6,104.2,105.3]],
+[[100,102,99.8,101.7],[101.7,103.8,101.5,103.5],[103.5,105.1,103.2,104.6],[104.6,104.9,103.4,103.7],[103.7,104,102.1,102.4],[102.4,104.2,102.2,103.9],[103.9,105.5,103.7,104.2],[104.2,104.5,102.6,102.9],[102.9,103.2,101.4,101.7],[101.7,102,99.9,100.2],[100.2,100.6,98.7,99],[99,99.4,97.6,97.9]],
+[[103,103.4,101.9,102.2],[102.2,102.5,100.8,101.1],[101.1,101.6,100,100.3],[100.3,101.4,100,101.1],[101.1,101.3,99,100.6],[100.6,102,100.4,101.8],[101.8,103.1,101.6,102.9],[102.9,104.2,102.7,103.9],[103.9,105.1,103.6,104.8],[104.8,105.9,104.5,105.5]]];
+/* real chart drills injected at build time */
+const DRILLS=[{"m":"GOLD","a":"S","c":[[4031.8,4085.2,4031.8,4076.7],[4060.5,4091.9,4060.5,4091.9],[4139.2,4139.2,4139.2,4139.2],[4128.6,4171.0,4127.5,4165.2],[4163.4,4223.9,4140.0,4218.3],[4218.5,4262.1,4214.9,4239.3],[4230.5,4230.5,4167.0,4186.6],[4215.7,4234.1,4195.7,4199.3],[4211.0,4211.8,4175.0,4211.8],[4204.1,4255.7,4194.5,4212.9],[4205.5,4215.8,4175.5,4187.2],[4190.7,4219.7,4177.7,4206.7],[4209.0,4234.5,4183.6,4196.4],[4224.0,4286.9,4214.3,4285.5],[4276.4,4355.0,4260.0,4300.1],[4308.3,4349.2,4292.9,4306.7],[4270.5,4321.4,4270.5,4304.5],[4308.5,4351.4,4308.5,4347.5],[4331.0,4348.1,4328.2,4339.5],[4350.1,4361.4,4350.1,4361.4],[4371.1,4447.6,4371.1,4444.6],[4503.3,4503.8,4450.4,4482.8],[4500.7,4503.4,4468.4,4480.6],[4512.0,4556.3,4502.0,4529.1],[4371.5,4379.0,4325.1,4325.1],[4346.4,4403.6,4338.0,4370.1],[4333.5,4363.8,4285.0,4325.6],[4350.6,4350.6,4314.4,4314.4],[4386.7,4443.5,4384.8,4436.9],[4449.7,4482.2,4449.0,4482.2],[4450.0,4450.0,4449.3,4449.3],[4460.2,4461.3,4418.0,4449.7],[4473.0,4490.3,4473.0,4490.3],[4579.1,4620.0,4577.8,4604.3],[4578.6,4617.1,4578.6,4589.2],[4610.3,4635.0,4608.2,4626.3],[4612.9,4616.3,4612.9,4616.3],[4608.0,4608.0,4588.4,4588.4],[4662.2,4764.0,4661.8,4759.6],[4863.5,4872.3,4771.5,4831.8],[4791.9,4908.8,4791.9,4908.8],[4949.6,4976.2,4936.0,4976.2],[5081.5,5095.6,5052.2,5079.7],[5079.9,5079.9,5079.9,5079.9]],"f":[[5301.6,5301.6,5301.6,5301.6],[5415.7,5586.2,5097.5,5318.4],[5376.4,5440.5,4700.0,4713.9],[4807.7,4855.8,4400.0,4622.5],[4680.0,4984.6,4674.3,4903.7],[4923.3,5082.2,4897.9,4920.4],[5008.7,5012.3,4786.0,4861.4],[4762.0,4958.5,4655.0,4951.2]],"chg":-2.5},{"m":"GOLD","a":"K","c":[[3363.0,3395.9,3353.4,3380.9],[3407.3,3444.0,3407.3,3431.2],[3442.0,3442.0,3385.4,3396.4],[3398.3,3398.3,3376.1,3386.6],[3385.3,3391.9,3365.1,3389.8],[3350.0,3372.9,3341.0,3368.1],[3365.9,3387.9,3350.0,3377.7],[3358.0,3358.0,3301.0,3317.4],[3321.6,3331.2,3310.6,3327.1],[3332.4,3333.5,3332.4,3333.5],[3318.7,3318.7,3253.8,3273.7],[3265.9,3306.9,3262.0,3294.4],[3310.1,3354.1,3310.1,3336.7],[3329.0,3357.5,3329.0,3348.0],[3362.0,3362.0,3322.3,3331.6],[3342.0,3342.0,3332.5,3332.5],[3305.5,3333.3,3299.2,3332.2],[3330.4,3334.5,3287.6,3307.0],[3289.4,3314.0,3282.0,3311.6],[3323.6,3330.5,3311.6,3317.4],[3330.5,3370.0,3330.5,3356.0],[3367.0,3375.5,3350.0,3351.5],[3341.0,3341.0,3329.8,3329.8],[3341.2,3352.9,3329.5,3352.5],[3313.8,3340.8,3313.8,3340.1],[3338.2,3353.0,3338.2,3353.0],[3350.3,3411.7,3350.3,3401.9],[3411.0,3441.0,3395.6,3439.2],[3430.3,3433.9,3388.1,3394.1],[3367.0,3371.0,3367.0,3371.0],[3344.0,3345.0,3326.5,3334.0],[3326.6,3326.8,3309.1,3309.1],[3323.4,3323.4,3323.4,3323.4],[3325.8,3331.8,3263.9,3295.8],[3272.9,3312.0,3272.9,3293.2],[3286.2,3360.6,3281.0,3347.7],[3367.6,3386.5,3347.4,3374.4],[3378.5,3387.2,3351.2,3381.9],[3380.7,3383.3,3361.3,3380.0],[3384.9,3422.9,3384.9,3400.3],[3438.8,3477.0,3402.5,3439.1],[3383.9,3383.9,3349.2,3353.1],[3356.2,3356.2,3330.1,3348.9],[3358.8,3363.4,3358.7,3358.7]],"f":[[3346.8,3356.0,3328.9,3335.2],[3346.8,3346.8,3335.9,3336.0],[3333.5,3347.8,3331.7,3331.7],[3330.2,3343.5,3313.4,3313.4],[3310.6,3343.5,3310.1,3343.4],[3349.4,3349.4,3326.5,3336.9],[3349.4,3377.7,3349.4,3374.4],[3366.0,3378.0,3366.0,3373.8]],"chg":0.4},{"m":"GOLD","a":"S","c":[[3655.5,3656.8,3643.0,3649.4],[3640.0,3686.4,3635.1,3682.2],[3681.4,3698.6,3681.4,3688.9],[3669.0,3685.2,3661.6,3681.8],[3654.6,3667.4,3637.0,3643.7],[3659.0,3685.9,3658.2,3671.5],[3688.2,3748.2,3688.0,3740.7],[3747.0,3786.0,3740.0,3780.6],[3769.8,3772.5,3732.1,3732.1],[3742.8,3756.0,3724.7,3736.9],[3775.3,3775.3,3775.3,3775.3],[3754.8,3827.6,3754.8,3820.9],[3827.5,3865.5,3793.4,3840.8],[3863.5,3891.9,3853.3,3867.5],[3856.2,3888.6,3823.7,3839.7],[3855.2,3886.8,3853.7,3880.8],[3931.3,3960.0,3926.8,3948.5],[3959.4,3981.5,3940.0,3976.6],[3987.2,4049.2,3987.2,4043.3],[4011.2,4046.2,3940.0,3946.3],[3957.0,4012.0,3945.5,3975.9],[4016.0,4111.0,4016.0,4108.6],[4131.7,4160.1,4085.8,4138.7],[4145.0,4210.6,4145.0,4176.9],[4198.8,4307.0,4196.6,4280.2],[4354.7,4358.0,4182.2,4189.9],[4244.1,4356.6,4214.6,4336.4],[4332.7,4332.7,4087.7,4087.7],[4109.7,4148.5,4006.0,4044.4],[4078.4,4136.8,4070.7,4125.5],[4117.5,4120.6,4074.9,4118.4],[4060.0,4078.6,3971.3,4001.9],[3929.7,3966.2,3923.6,3966.2],[3983.7,3983.7,3983.7,3983.7],[3960.0,4027.2,3913.7,4001.3],[4034.5,4034.5,3976.6,3982.2],[3976.2,4020.0,3959.0,4000.3],[3994.2,3995.4,3927.4,3947.7],[3929.9,3983.5,3929.9,3980.3],[4004.0,4007.5,3979.9,3979.9],[3980.8,3999.4,3980.8,3999.4],[4060.0,4111.8,4060.0,4111.8],[4140.1,4140.1,4106.8,4106.8],[4115.6,4204.4,4102.9,4204.4]],"f":[[4228.7,4228.7,4163.7,4186.9],[4197.7,4197.9,4047.0,4087.6],[4070.0,4099.5,4019.4,4068.3],[4037.4,4063.4,4035.6,4061.3],[4086.1,4122.7,4072.0,4077.7],[4045.0,4090.4,4040.2,4056.5],[4031.8,4085.2,4031.8,4076.7],[4060.5,4091.9,4060.5,4091.9]],"chg":-2.7},{"m":"GOLD","a":"S","c":[[2501.0,2501.0,2501.0,2501.0],[2504.1,2525.7,2503.9,2525.7],[2519.5,2525.4,2493.8,2493.8],[2501.6,2501.8,2476.3,2489.9],[2490.9,2493.4,2483.5,2493.4],[2493.7,2513.3,2493.4,2511.4],[2510.3,2517.9,2483.7,2493.5],[2491.3,2504.7,2491.3,2501.8],[2512.3,2512.3,2512.3,2512.3],[2525.8,2525.8,2502.3,2512.1],[2529.1,2557.0,2523.4,2551.2],[2568.8,2581.8,2565.0,2581.3],[2580.4,2580.4,2580.4,2580.4],[2581.2,2581.8,2564.3,2564.3],[2570.7,2570.7,2549.2,2570.7],[2566.0,2588.0,2566.0,2588.0],[2590.4,2621.8,2590.4,2619.9],[2626.5,2626.5,2626.5,2626.5],[2636.8,2662.3,2625.5,2651.2],[2656.3,2664.2,2649.3,2659.2],[2662.3,2669.9,2660.8,2669.9],[2670.0,2672.1,2641.7,2644.3],[2660.9,2662.1,2623.2,2636.1],[2631.4,2670.9,2631.4,2667.3],[2650.6,2657.2,2640.0,2647.1],[2642.8,2657.1,2640.0,2657.1],[2656.0,2667.0,2639.0,2645.8],[2648.7,2657.4,2639.0,2644.8],[2639.0,2639.0,2609.3,2615.0],[2603.0,2607.7,2603.0,2606.0],[2602.5,2628.3,2602.5,2620.6],[2638.3,2658.1,2638.2,2657.6],[2655.0,2655.3,2647.8,2647.8],[2661.4,2661.4,2661.4,2661.4],[2674.0,2674.0,2674.0,2674.0],[2677.4,2691.7,2677.2,2691.0],[2713.7,2719.6,2713.7,2713.7],[2721.9,2738.4,2719.5,2723.1],[2731.7,2746.0,2728.6,2744.2],[2742.5,2742.5,2714.2,2714.4],[2729.0,2736.1,2729.0,2734.9],[2725.5,2742.4,2725.5,2740.9],[2736.1,2742.9,2729.5,2742.9],[2768.4,2768.4,2768.4,2768.4]],"f":[[2774.6,2789.0,2774.6,2788.5],[2787.4,2787.5,2733.5,2738.3],[2745.5,2756.0,2734.2,2738.6],[2736.5,2737.1,2736.1,2736.1],[2743.0,2743.9,2740.3,2740.3],[2734.5,2734.5,2659.4,2667.6],[2662.5,2699.1,2662.5,2698.4],[2688.5,2694.6,2682.9,2687.5]],"chg":-2.9},{"m":"GOLD","a":"B","c":[[2347.9,2347.9,2332.8,2334.8],[2334.8,2345.5,2327.9,2345.4],[2322.5,2322.5,2291.4,2291.4],[2287.7,2327.3,2283.8,2299.9],[2321.7,2324.7,2292.3,2299.2],[2300.0,2301.0,2277.6,2299.0],[2322.8,2325.5,2314.2,2321.6],[2324.3,2324.3,2315.2,2315.2],[2313.6,2313.6,2313.6,2313.6],[2310.7,2339.5,2310.7,2332.1],[2367.3,2367.3,2367.3,2367.3],[2358.3,2358.3,2336.1,2336.1],[2336.0,2358.0,2336.0,2353.4],[2361.6,2388.7,2356.0,2388.7],[2389.5,2392.2,2380.0,2380.0],[2380.7,2415.8,2380.7,2412.2],[2415.8,2435.8,2409.7,2433.9],[2429.5,2429.5,2421.0,2421.7],[2417.5,2417.6,2375.8,2389.2],[2371.2,2371.2,2335.0,2335.0],[2342.6,2345.4,2332.5,2332.5],[2336.9,2359.7,2336.9,2355.2],[2340.3,2340.3,2340.3,2340.3],[2336.9,2349.5,2320.8,2342.9],[2344.1,2354.0,2319.0,2322.9],[2322.6,2347.5,2312.0,2346.6],[2347.5,2347.7,2313.9,2325.5],[2326.4,2354.3,2326.2,2354.1],[2355.0,2375.8,2355.0,2370.3],[2379.9,2385.1,2285.4,2305.2],[2290.6,2309.3,2290.5,2307.7],[2300.0,2314.1,2300.0,2307.5],[2314.9,2338.7,2310.3,2336.0],[2309.4,2317.7,2296.2,2300.2],[2307.0,2331.4,2305.8,2331.4],[2320.2,2320.2,2309.6,2312.4],[2311.8,2330.4,2311.8,2330.4],[2328.9,2354.0,2328.3,2353.8],[2331.2,2331.2,2316.4,2316.4],[2323.3,2332.9,2322.7,2330.0],[2324.4,2333.0,2316.6,2316.6],[2307.9,2314.4,2298.0,2299.2],[2296.8,2329.0,2295.0,2324.5],[2325.4,2338.3,2319.0,2327.7]],"f":[[2323.8,2329.7,2321.7,2327.6],[2330.7,2334.6,2323.0,2323.0],[2330.9,2361.6,2330.9,2359.8],[2354.9,2388.5,2354.9,2388.5],[2381.7,2383.8,2352.8,2355.2],[2363.1,2363.7,2360.1,2360.1],[2366.3,2377.0,2365.8,2372.2],[2378.7,2416.7,2378.7,2415.0]],"chg":3.8},{"m":"GOLD","a":"B","c":[[4011.2,4046.2,3940.0,3946.3],[3957.0,4012.0,3945.5,3975.9],[4016.0,4111.0,4016.0,4108.6],[4131.7,4160.1,4085.8,4138.7],[4145.0,4210.6,4145.0,4176.9],[4198.8,4307.0,4196.6,4280.2],[4354.7,4358.0,4182.2,4189.9],[4244.1,4356.6,4214.6,4336.4],[4332.7,4332.7,4087.7,4087.7],[4109.7,4148.5,4006.0,4044.4],[4078.4,4136.8,4070.7,4125.5],[4117.5,4120.6,4074.9,4118.4],[4060.0,4078.6,3971.3,4001.9],[3929.7,3966.2,3923.6,3966.2],[3983.7,3983.7,3983.7,3983.7],[3960.0,4027.2,3913.7,4001.3],[4034.5,4034.5,3976.6,3982.2],[3976.2,4020.0,3959.0,4000.3],[3994.2,3995.4,3927.4,3947.7],[3929.9,3983.5,3929.9,3980.3],[4004.0,4007.5,3979.9,3979.9],[3980.8,3999.4,3980.8,3999.4],[4060.0,4111.8,4060.0,4111.8],[4140.1,4140.1,4106.8,4106.8],[4115.6,4204.4,4102.9,4204.4],[4228.7,4228.7,4163.7,4186.9],[4197.7,4197.9,4047.0,4087.6],[4070.0,4099.5,4019.4,4068.3],[4037.4,4063.4,4035.6,4061.3],[4086.1,4122.7,4072.0,4077.7],[4045.0,4090.4,4040.2,4056.5],[4031.8,4085.2,4031.8,4076.7],[4060.5,4091.9,4060.5,4091.9],[4139.2,4139.2,4139.2,4139.2],[4128.6,4171.0,4127.5,4165.2],[4163.4,4223.9,4140.0,4218.3],[4218.5,4262.1,4214.9,4239.3],[4230.5,4230.5,4167.0,4186.6],[4215.7,4234.1,4195.7,4199.3],[4211.0,4211.8,4175.0,4211.8],[4204.1,4255.7,4194.5,4212.9],[4205.5,4215.8,4175.5,4187.2],[4190.7,4219.7,4177.7,4206.7],[4209.0,4234.5,4183.6,4196.4]],"f":[[4224.0,4286.9,4214.3,4285.5],[4276.4,4355.0,4260.0,4300.1],[4308.3,4349.2,4292.9,4306.7],[4270.5,4321.4,4270.5,4304.5],[4308.5,4351.4,4308.5,4347.5],[4331.0,4348.1,4328.2,4339.5],[4350.1,4361.4,4350.1,4361.4],[4371.1,4447.6,4371.1,4444.6]],"chg":5.9},{"m":"NQ","a":"S","c":[[25482.5,25546.0,25193.2,25391.2],[25411.5,25670.0,25324.8,25606.0],[25611.0,25685.2,25421.5,25657.5],[25650.2,25732.5,25488.8,25622.8],[25629.8,25868.0,25579.8,25732.0],[25750.0,25860.8,25564.8,25664.0],[25713.0,25735.8,25560.0,25699.8],[25680.0,25870.8,25528.8,25798.0],[25769.5,25861.5,25383.0,25713.5],[25701.0,25733.2,25118.0,25213.5],[25223.5,25410.0,25033.2,25093.2],[25101.2,25202.5,24828.0,25139.0],[25091.8,25266.0,24654.5,24668.8],[24744.0,25178.0,24675.5,25028.2],[25002.5,25160.0,24977.5,25132.8],[25635.2,25794.8,25628.0,25692.2],[25701.0,25822.5,25608.2,25812.2],[25815.8,25892.0,25777.5,25880.5],[25868.0,25935.2,25834.2,25863.2],[25863.2,25893.8,25648.0,25739.8],[25740.0,25793.8,25668.2,25675.2],[25683.2,25716.8,25429.0,25456.8],[25478.5,25803.8,25265.2,25385.2],[25431.8,25708.0,25406.5,25577.8],[25583.0,25837.8,25527.5,25822.0],[25831.2,25996.2,25727.0,25838.8],[25838.8,25849.8,25569.0,25687.5],[25725.0,25985.5,25615.5,25938.2],[25949.0,26020.5,25632.8,25956.8],[25953.5,26045.5,25803.2,25906.0],[25900.8,25925.8,25420.8,25631.0],[25593.0,25952.8,25562.5,25705.8],[25720.5,25891.0,25591.5,25689.0],[25471.0,25472.0,25095.2,25129.2],[25149.5,25653.5,25025.0,25471.0],[25529.5,25739.8,25483.8,25658.2],[25605.0,25845.8,25540.2,25738.2],[25585.5,25936.5,25365.2,25848.5],[25861.2,26118.0,25838.5,26073.0],[26111.2,26349.0,25993.2,26156.2],[26282.5,26296.0,25536.0,25999.2],[25998.5,26020.0,25568.8,25670.0],[25530.0,25949.5,25180.2,25850.0],[25876.5,26027.8,25219.0,25452.0]],"f":[[25387.5,25514.2,24783.5,24999.2],[25061.8,25169.0,24407.2,24651.0],[24416.0,25222.0,24239.8,25163.2],[25153.8,25428.8,24955.5,25354.0],[25363.0,25447.2,25198.2,25218.2],[25259.0,25465.2,25058.2,25288.5],[25289.0,25419.8,24721.5,24768.0],[24842.2,24995.5,24578.8,24803.2]],"chg":-2.5},{"m":"NQ","a":"B","c":[[19995.2,20011.8,19357.5,19457.0],[19319.8,19489.8,18976.8,19439.5],[19411.2,19644.0,19261.2,19604.5],[19600.5,20044.2,19076.8,19758.0],[19020.0,19177.0,18614.0,18675.5],[18660.0,18713.0,17387.5,17539.0],[17100.0,18361.5,16460.0,17563.2],[17665.0,18357.2,16973.5,17243.8],[17220.2,19386.8,16735.0,19288.8],[19266.8,19383.5,17919.0,18484.5],[18464.8,18873.5,18067.0,18807.5],[19225.0,19256.0,18737.5,18934.8],[18902.5,19144.8,18809.0,18960.2],[18790.0,18861.2,18116.2,18385.2],[18391.2,18652.8,18261.5,18380.8],[18306.2,18383.5,17700.0,17922.2],[17914.0,18514.0,17863.8,18385.0],[18646.0,19165.5,18623.8,18804.0],[18826.5,19418.0,18594.8,19322.0],[19405.0,19589.0,19216.2,19535.2],[19524.5,19623.0,19257.2,19528.0],[19478.2,19688.5,19378.0,19642.0],[19599.8,19880.0,19103.8,19658.5],[19834.0,20125.8,19757.2,19870.8],[19782.5,20276.8,19749.5,20195.2],[20181.5,20201.8,19966.0,20055.5],[20014.2,20036.8,19739.0,19876.5],[19809.0,20133.8,19678.8,19961.0],[19934.5,20337.2,19910.8,20148.0],[20157.0,20288.8,20058.0,20136.8],[20398.5,20996.0,20376.8,20948.8],[20954.8,21346.5,20818.0,21278.0],[21250.0,21419.5,21238.2,21392.5],[21379.8,21529.8,21192.0,21400.2],[21396.0,21512.0,21320.2,21506.0],[21310.8,21544.5,21112.5,21527.0],[21513.0,21562.2,21298.0,21447.2],[21414.8,21558.5,21072.8,21156.8],[21145.0,21337.5,21040.0,21178.2],[21223.8,21236.0,20727.0,20975.0],[20978.0,21488.5,20954.2,21460.5],[21480.0,21567.5,21321.2,21379.8],[21513.0,21858.8,21301.0,21408.5],[21371.2,21433.5,21071.5,21376.8]],"f":[[21303.8,21576.2,21163.0,21534.5],[21555.0,21759.8,21399.2,21706.0],[21688.2,21803.0,21641.0,21766.5],[21744.8,21935.0,21503.5,21582.2],[21471.0,21873.5,21471.0,21789.5],[21799.2,21890.8,21716.0,21821.5],[21824.0,21992.2,21732.0,21962.5],[21945.8,22106.0,21790.8,21887.5]],"chg":2.4},{"m":"NQ","a":"B","c":[[23059.2,23062.5,22882.0,22906.8],[22970.0,23028.5,22779.8,22884.8],[22837.8,22972.8,22808.5,22896.8],[22906.5,23112.0,22843.5,23052.8],[23041.0,23090.0,22901.2,23013.2],[23011.8,23048.8,22831.5,22959.0],[22860.8,23066.5,22803.0,23035.5],[23034.2,23222.8,22996.0,23056.8],[23018.8,23100.0,22835.5,23076.5],[23065.5,23279.8,23017.0,23251.0],[23261.2,23320.8,23169.5,23224.2],[23232.5,23424.8,23203.8,23342.0],[23339.5,23367.0,23108.0,23226.2],[23191.2,23418.0,23146.8,23310.8],[23402.2,23424.5,23298.2,23377.5],[23391.5,23476.0,23330.8,23421.2],[23520.0,23585.2,23436.8,23491.2],[23504.2,23652.5,23421.2,23452.0],[23452.0,23689.0,23356.5,23480.5],[23705.0,23845.0,23290.5,23365.0],[23308.5,23347.5,22775.0,22883.8],[22850.0,23352.5,22821.8,23296.5],[23354.0,23404.2,23084.5,23132.0],[23091.8,23445.2,23045.5,23422.8],[23418.5,23671.0,23329.0,23496.2],[23518.2,23767.8,23503.0,23713.8],[23764.0,23804.5,23587.5,23637.5],[23635.0,23953.5,23596.0,23938.0],[23945.0,24068.5,23886.0,23946.5],[23927.8,24007.8,23793.2,23930.5],[23888.8,23963.0,23734.5,23804.0],[23795.0,23881.8,23719.0,23797.8],[23800.8,23838.0,23426.0,23469.5],[23461.0,23485.5,23035.0,23324.0],[23323.0,23369.2,23119.0,23219.8],[23225.2,23650.0,23076.8,23569.8],[23602.0,23616.2,23443.2,23498.2],[23505.8,23611.0,23371.5,23591.5],[23604.0,23689.0,23434.8,23628.8],[23542.2,23803.8,23487.5,23769.0],[23760.5,23762.0,23397.5,23461.8],[23479.0,23552.5,23025.2,23275.0],[23382.0,23525.2,23298.2,23448.8],[23456.8,23708.8,23410.0,23668.0]],"f":[[23700.0,23902.0,23505.0,23684.0],[23673.5,23888.0,23650.2,23799.8],[23799.0,23921.2,23726.0,23874.0],[23898.5,24044.2,23785.0,23877.8],[23853.8,24046.0,23838.0,24017.8],[24028.2,24159.0,23969.0,24113.2],[24115.2,24315.5,24076.0,24309.2],[24290.0,24403.5,24258.2,24284.0]],"chg":2.6},{"m":"NQ","a":"S","c":[[26104.5,26104.5,25522.8,25575.2],[25545.0,25880.0,25282.0,25746.2],[25738.5,25822.2,25197.8,25244.2],[25314.8,25354.8,24709.2,25166.2],[25320.8,25760.5,25269.0,25714.5],[25722.2,25768.8,25478.5,25640.8],[25668.0,25830.0,25488.8,25623.8],[25624.0,25721.5,25002.5,25094.8],[25095.2,25293.2,24626.0,25094.0],[25142.2,25361.2,24731.8,24879.0],[24905.5,24959.5,24376.2,24595.8],[24551.0,24988.0,24445.0,24721.8],[24966.8,25310.0,24073.2,24131.5],[24110.0,24596.2,23904.5,24305.5],[24455.8,24993.5,24361.8,24948.2],[24966.2,25135.2,24602.0,25085.5],[25071.2,25376.0,25061.2,25302.2],[25313.0,25499.8,25285.8,25482.0],[25482.5,25546.0,25193.2,25391.2],[25411.5,25670.0,25324.8,25606.0],[25611.0,25685.2,25421.5,25657.5],[25650.2,25732.5,25488.8,25622.8],[25629.8,25868.0,25579.8,25732.0],[25750.0,25860.8,25564.8,25664.0],[25713.0,25735.8,25560.0,25699.8],[25680.0,25870.8,25528.8,25798.0],[25769.5,25861.5,25383.0,25713.5],[25701.0,25733.2,25118.0,25213.5],[25223.5,25410.0,25033.2,25093.2],[25101.2,25202.5,24828.0,25139.0],[25091.8,25266.0,24654.5,24668.8],[24744.0,25178.0,24675.5,25028.2],[25002.5,25160.0,24977.5,25132.8],[25635.2,25794.8,25628.0,25692.2],[25701.0,25822.5,25608.2,25812.2],[25815.8,25892.0,25777.5,25880.5],[25868.0,25935.2,25834.2,25863.2],[25863.2,25893.8,25648.0,25739.8],[25740.0,25793.8,25668.2,25675.2],[25683.2,25716.8,25429.0,25456.8],[25478.5,25803.8,25265.2,25385.2],[25431.8,25708.0,25406.5,25577.8],[25583.0,25837.8,25527.5,25822.0],[25831.2,25996.2,25727.0,25838.8]],"f":[[25838.8,25849.8,25569.0,25687.5],[25725.0,25985.5,25615.5,25938.2],[25949.0,26020.5,25632.8,25956.8],[25953.5,26045.5,25803.2,25906.0],[25900.8,25925.8,25420.8,25631.0],[25593.0,25952.8,25562.5,25705.8],[25720.5,25891.0,25591.5,25689.0],[25471.0,25472.0,25095.2,25129.2]],"chg":-2.7},{"m":"NQ","a":"B","c":[[20024.2,20162.5,19758.8,19899.2],[19955.0,19979.8,19654.0,19713.0],[19749.0,20044.8,19718.8,20001.0],[19982.0,20084.8,19868.2,19925.0],[19883.0,19883.0,19168.8,19203.2],[19260.0,19390.5,18883.2,18992.2],[19003.0,19297.8,18995.0,19174.5],[19171.8,19377.2,19113.2,19209.2],[19217.0,19319.8,18725.0,18936.2],[18865.8,19648.0,18861.8,19505.2],[19593.2,19717.0,18854.0,19023.2],[18956.5,18979.8,18385.8,18556.2],[18390.0,18390.0,17351.0,18013.2],[18165.8,18483.2,17966.0,18179.0],[18033.0,18558.5,17836.2,17966.5],[17873.0,18593.5,17741.8,18525.2],[18550.2,18674.5,18383.0,18616.0],[18590.0,18765.2,18515.0,18639.5],[18648.2,19122.5,18628.5,19104.2],[19099.2,19203.5,18925.5,19115.0],[19142.5,19603.2,19100.5,19581.2],[19570.2,19683.0,19447.5,19605.8],[19629.0,19871.8,19525.2,19857.8],[19857.8,19931.0,19743.0,19809.5],[19803.0,19981.8,19771.5,19909.5],[19921.2,20025.2,19542.0,19578.2],[19621.5,19904.2,19591.8,19790.8],[19787.8,19846.2,19505.5,19591.2],[19558.8,19694.2,19441.5,19653.8],[19635.5,19691.0,19227.2,19415.8],[19217.0,19693.5,19140.2,19393.2],[19445.8,19632.8,19370.5,19623.0],[19599.0,19683.0,18911.0,19006.5],[18993.8,19114.8,18825.8,18962.5],[18965.8,19150.5,18827.2,18963.5],[18921.0,18972.2,18339.8,18458.2],[18400.0,18734.5,18386.0,18692.2],[18727.0,18878.5,18582.2,18864.0],[18837.8,19293.5,18547.0,19271.0],[19241.5,19483.5,19185.0,19447.2],[19419.5,19577.2,19398.2,19530.2],[19498.0,19546.5,19299.2,19433.0],[19426.5,19615.5,19341.0,19439.2],[19451.0,19660.0,19331.0,19349.2]],"f":[[19420.5,19966.2,19408.8,19850.2],[19831.2,19838.2,19746.5,19808.0],[20040.0,20164.0,19955.2,20080.0],[20063.2,20214.8,19953.0,20167.8],[20183.8,20271.0,20064.2,20192.0],[20242.0,20538.0,20188.0,20346.2],[20345.0,20395.8,20173.0,20221.5],[20198.5,20287.0,20056.0,20261.2]],"chg":4.7},{"m":"NQ","a":"B","c":[[25033.8,25059.8,24668.0,24762.8],[24788.0,25078.8,24694.5,25028.8],[25016.2,25494.8,24992.0,25382.0],[25388.2,25418.2,24861.8,25081.0],[25024.2,25098.8,24782.0,25004.8],[24682.5,25101.0,24477.0,25025.2],[25002.8,25011.0,24352.0,24755.8],[24710.8,25217.8,24499.0,25128.2],[25156.5,25250.0,24772.5,25049.5],[25019.8,25141.5,24601.0,24670.2],[24435.2,25058.0,24000.0,24991.0],[24981.5,25217.5,24830.0,24982.5],[25010.2,25180.0,24873.5,24983.5],[24934.5,24949.2,24517.8,24560.0],[24567.0,24805.2,24333.8,24394.2],[24285.0,24816.2,24278.0,24675.8],[24668.8,24896.0,24517.0,24795.5],[24796.0,24989.0,24350.0,24434.5],[24399.8,24505.2,24115.0,24364.0],[24417.2,24444.0,24108.8,24291.8],[23902.0,24763.0,23772.5,24408.2],[24417.2,24550.0,24134.0,24213.8],[24420.0,24539.8,24286.5,24367.8],[24373.5,24421.2,23763.2,23794.2],[23824.0,23976.0,23232.5,23328.5],[23189.5,23574.0,23024.5,23139.8],[23119.5,23975.2,22961.5,23915.0],[23889.0,24348.2,23880.0,24194.8],[24180.0,24266.8,23666.0,24218.0],[24093.5,24452.2,23981.5,24358.5],[24348.8,24451.5,23941.5,24371.0],[24514.0,25257.0,24355.0,25074.2],[25037.8,25269.8,24953.0,25251.5],[25237.0,25393.0,25193.0,25281.2],[24980.0,25599.2,24904.5,25543.5],[25575.2,26003.2,25560.0,25996.8],[25985.8,26377.5,25933.8,26365.5],[26350.0,26564.0,26275.5,26487.2],[26460.0,26884.8,26440.0,26825.5],[26599.8,26827.8,26535.0,26748.8],[26776.8,26901.8,26551.8,26634.8],[26729.5,27136.0,26727.8,27083.0],[27075.0,27155.8,26681.8,26934.0],[26992.0,27462.5,26992.0,27435.0]],"f":[[27403.2,27542.5,27298.5,27440.5],[27423.0,27512.0,27009.5,27168.8],[27197.2,27414.0,27094.0,27325.2],[27207.0,27622.8,27163.2,27596.0],[27631.8,27917.0,27536.2,27835.8],[27890.0,27965.8,27613.0,27776.0],[27760.0,28247.0,27731.8,28136.0],[28250.0,28800.0,28243.0,28716.8]],"chg":4.7}];
+/* videos — high-engagement psychology classics (embedded) */
+const VIDS={
+d1:{id:"sxHDswfLTKs",t:"Mark Douglas — Think Like a Pro (Pt.1)",n:"The seminal seminar. Watch for: why fearless ≠ reckless, and what 'consistency' actually is."},
+d4:{id:"8YDs_eM6Hl4",t:"7 Trading Psychology Rules Every Trader Must Know (Smart Risk)",n:"Recent, practical rule-set — map each rule to a module you've completed."},
+ds:{id:"DLYUn7mZUYA",t:"5 Practical Tips to Master Trading Psychology (SMB Capital)",n:"From a real prop desk — note which tip you're currently worst at."},
+mc:{id:"v9-y0bUvWN0",t:"Pro Traders' Psychology Secrets (1-hr Masterclass)",n:"What professionals do differently, systematized. Take 3 notes minimum."},
+bt:{id:"4ZuYoFori6k",t:"The Brutal Truth About Trading Psychology",n:"The uncomfortable parts most content skips. Watch before your exam."},
+pa1:{id:"CUUAV9wGt7M",t:"Liquidity Sweep & Liquidity Run Explained",n:"Why price hunts beyond obvious levels — pairs with the S/R lesson you just did."},
+pa2:{id:"TthzSVTzWoE",t:"Market Mechanics — Liquidity & Inducements (May 2026)",n:"Inducement = the bait before the sweep. Connect every example to Module 6."},
+pa3:{id:"I_msgqMsplg",t:"ULTIMATE Liquidity Trading Strategy (Apr 2026)",n:"A full sweep-based strategy — compare its rules to your chart-drill answers."},
+th:{id:"A5xzSqX_ln8",t:"Tom Hougaard — Best Loser Wins (Full Interview)",n:"Author of 'Best Loser Wins'. Losing well as a professional skill — the perfect Course 02 finale."}};
+/* ============ PATH BUILD ============ */
+const COURSES=[C1,C2,C3];
+function vnode(ci,key){const v=VIDS[key];return{id:`c${ci}V${key}`,ty:'video',ci,vk:key,ic:'▶',lbl:v.t}}
+function buildPath(ci){const c=COURSES[ci],N=[];
+ c.mods.forEach((m,i)=>{
+  N.push({id:`c${ci}L${i}`,ty:'lesson',ci,mi:i,ic:'📖',lbl:m.t});
+  if(ci===0){
+   if(i===2)N.push(vnode(0,'ds'));
+   if(i===4)N.push({id:`c0Qe`,ty:'quiz',ci,bank:'easy',ic:'⭐',lbl:'Checkpoint · Easy'},vnode(0,'d1'));
+   if(i===9)N.push({id:`c0Qm`,ty:'quiz',ci,bank:'medium',ic:'⭐',lbl:'Checkpoint · Medium'},vnode(0,'mc'));
+   if(i===14)N.push({id:`c0Qh`,ty:'quiz',ci,bank:'hard',ic:'⭐',lbl:'Checkpoint · Hard'},vnode(0,'bt'));}
+  if(ci===1){
+   if(i===3)N.push({id:`c1Qe`,ty:'quiz',ci,bank:'easy',ic:'⭐',lbl:'Checkpoint · Easy'},vnode(1,'d4'));
+   if(i===5)N.push({id:`c1Qm`,ty:'quiz',ci,bank:'medium',ic:'⭐',lbl:'Checkpoint · Medium'});
+   if(i===7)N.push({id:`c1Qh`,ty:'quiz',ci,bank:'hard',ic:'⭐',lbl:'Checkpoint · Hard'},vnode(1,'th'));}
+  if(ci===2){
+   if(i===1)N.push(vnode(2,'pa1'));
+   if(i===5)N.push(vnode(2,'pa2'));
+   if(i===6)N.push(vnode(2,'pa3'));
+   if(i===2)N.push({id:`c2Qe`,ty:'quiz',ci,bank:'easy',ic:'⭐',lbl:'Checkpoint · Easy'});
+   if(i===3)N.push({id:`c2D0`,ty:'drill',ci,set:[0,1,6,7],ic:'📈',lbl:'CHART DRILL · Breakouts & ranges'});
+   if(i===4)N.push({id:`c2Qm`,ty:'quiz',ci,bank:'medium',ic:'⭐',lbl:'Checkpoint · Medium'});
+   if(i===6)N.push({id:`c2D1`,ty:'drill',ci,set:[2,3,8,9],ic:'📈',lbl:'CHART DRILL · Sweeps & structure'});
+   if(i===7)N.push({id:`c2Qh`,ty:'quiz',ci,bank:'hard',ic:'⭐',lbl:'Checkpoint · Hard'},{id:`c2D2`,ty:'drill',ci,set:[4,5,10,11],ic:'📈',lbl:'CHART DRILL · Final gauntlet'});}
+ });
+ N.push({id:`c${ci}X`,ty:'exam',ci,ic:'👑',lbl:'BOSS · Final Exam (80%)',boss:1});
+ return N;}
+const PATHS=[buildPath(0),buildPath(1),buildPath(2)];
+/* ============ STATE ============ */
+const K='academy17ba_v2';
+let S=JSON.parse(localStorage.getItem(K)||'null')||{n:{},xp:0,streak:{n:0,last:''},lt:{},scores:{},today:{d:'',xp:0}};
+S.n=S.n||{};S.lt=S.lt||{};S.scores=S.scores||{};S.streak=S.streak||{n:0,last:''};S.today=S.today||{d:'',xp:0};
+S.un=S.un||{};if(S.unlock2)S.un[1]=true;
+if(S.h===undefined){S.h=5;S.hd=''}
+const save=()=>localStorage.setItem(K,JSON.stringify(S));
+const today=()=>new Date().toISOString().slice(0,10);
+function refillHearts(){if(S.hd!==today()){S.h=5;S.hd=today();save()}}
+function loseHeart(){S.h=Math.max(0,S.h-1);save();hdr()}
+function addXP(n){S.xp+=n;if(S.today.d!==today())S.today={d:today(),xp:0};S.today.xp+=n;save();hdr()}
+function hdr(){refillHearts();document.getElementById('xp').textContent=S.xp;document.getElementById('stk').textContent=S.streak.n;document.getElementById('hh').textContent=S.h}
+/* ============ TABS ============ */
+const page=document.getElementById('page'),ov=document.getElementById('ov');
+const TABS=[["🏠","PATH"],["🔁","REVIEW"],["🃏","CARDS"],["📊","STATS"]];let tab=0;
+const tbar=document.getElementById('tabs');
+TABS.forEach((t,i)=>{const b=document.createElement('button');b.innerHTML=`<div>${t[0]}</div>${t[1]}`;b.onclick=()=>{tab=i;render()};tbar.appendChild(b)});
+function el(h){const d=document.createElement('div');d.innerHTML=h;return d.firstElementChild}
+function render(){[...tbar.children].forEach((b,i)=>b.className=i===tab?'on':'');hdr();page.innerHTML='';[path,review,cardsTab,stats][tab]();window.scrollTo(0,0);}
+/* ============ PATH ============ */
+function courseLocked(ci){if(ci===0)return false;return !S.un[ci]&&!S.n[`c${ci-1}X`]}
+function unlocked(ci,idx){if(courseLocked(ci))return false;const P=PATHS[ci];if(idx===0)return true;return !!S.n[P[idx-1].id]}
+function needsHearts(ty){return ty==='quiz'||ty==='exam'||ty==='drill'}
+function path(){
+ const w=el('<div class="wrap"></div>');
+ COURSES.forEach((c,ci)=>{
+  const lk=courseLocked(ci);
+  const u=el(`<div class="unit ${lk?'locked':''}"><h2>${c.name}</h2><p>${c.sub}</p>${lk?'<button class="ub">🔓 UNLOCK EARLY</button>':''}</div>`);
+  const ub=u.querySelector('.ub');if(ub)ub.onclick=()=>{S.un[ci]=true;save();render()};
+  w.appendChild(u);
+  const pd=el('<div class="path"></div>');
+  PATHS[ci].forEach((n,i)=>{
+   const done=!!S.n[n.id],open=unlocked(ci,i)&&!done;
+   const off=i%4===1?'off-l':i%4===3?'off-r':'';
+   const cls=n.ty==='video'?'vid':n.ty==='drill'?'drl':'';
+   const b=el(`<button class="node ${off} ${cls} ${done?'done':open?'open pulse':''} ${n.boss?'boss':''}">
+     <span class="core">${done?'✓':open?n.ic:'🔒'}</span><span class="lbl">${n.lbl}</span></button>`);
+   b.onclick=()=>{if(!done&&!unlocked(ci,i))return;
+    if(!done&&needsHearts(n.ty)&&S.h<=0)return noHearts();
+    openNode(n)};
+   pd.appendChild(b)});
+  w.appendChild(pd);});
+ page.appendChild(w);}
+function noHearts(){openOv(`<div class="ovb cele"><div style="font-size:50px">💔</div><h2>Out of hearts</h2>
+ <p class="small">Hearts refill tomorrow — or complete a Daily Review to earn one back now.</p>
+ <div style="margin-top:26px"><button class="big" id="rv">DO A REVIEW · +❤️</button><br><br><button class="big red" id="cl">CLOSE</button></div></div>`);
+ ov.querySelector('#rv').onclick=()=>{closeOv();tab=1;render()};
+ ov.querySelector('#cl').onclick=closeOv;}
+/* ============ OVERLAY ============ */
+function openOv(html){ov.innerHTML=html;ov.classList.add('on')}
+function closeOv(){ov.classList.remove('on');ov.innerHTML='';render()}
+function cele(xp,msg,extra=''){openOv(`<div class="ovb cele"><div class="big-xp">+${xp} XP</div><h2>${msg}</h2><p class="small">${extra}</p>
+ <div style="margin-top:30px"><button class="big gold" onclick="__c()">CONTINUE</button></div></div>`);window.__c=closeOv;}
+/* ============ NODE ROUTER ============ */
+function openNode(n){
+ if(n.ty==='lesson')return lessonScreen(n);
+ if(n.ty==='video')return videoScreen(n);
+ if(n.ty==='drill')return drillScreen(n);
+ if(n.ty==='quiz')return quizScreen(n,COURSES[n.ci].quiz[n.bank],n.lbl,Math.ceil(COURSES[n.ci].quiz[n.bank].length*0.7),ok=>{S.n[n.id]=1;S.scores[n.id]=Math.max(S.scores[n.id]||0,ok);save()});
+ if(n.ty==='exam'){const q=COURSES[n.ci].quiz;const bank=[...q.easy,...q.medium,...q.hard].sort(()=>Math.random()-.5).slice(0,15);
+  return quizScreen(n,bank,'FINAL EXAM',12,ok=>{if(ok>=12)S.n[n.id]=1;S.scores[n.id]=Math.max(S.scores[n.id]||0,ok);save()},true);}}
+/* lesson */
+function lessonScreen(n){
+ const m=COURSES[n.ci].mods[n.mi],dd=n.ci===2?C3D[n.mi]:null;let pg=0;const pages=m.p.length+1;
+ function draw(){
+  const last=pg===pages-1;
+  openOv(`<div class="ovh"><button class="x" onclick="__c()">✕</button><div class="pbar"><i style="width:${(pg+1)/pages*100}%"></i></div></div>
+  <div class="ovb"><h3 class="qt">${m.t}</h3><p class="small" style="margin-bottom:14px"><i>${m.e}</i></p>
+  ${dd?'<canvas class="ch" id="lcv"></canvas>':''}
+  ${last?`<div class="rule"><b class="g">RULE:</b> ${m.r}</div><div class="jr"><b class="gold">JOURNAL:</b> ${m.j}</div>`
+   :`<div class="pt">${m.p[pg]}</div>`}
+  </div>
+  <div class="ovf"><button class="big" id="go">${last?'COMPLETE · +20 XP':'CONTINUE'}</button></div>`);
+  window.__c=closeOv;
+  if(dd)drawChart(ov.querySelector('#lcv'),dd,[]);
+  ov.querySelector('#go').onclick=()=>{if(last){const first=!S.n[n.id];S.n[n.id]=1;if(first)addXP(20);save();cele(first?20:0,'Lesson complete!',m.t)}else{pg++;draw()}};}
+ draw();}
+/* video */
+function videoScreen(n){
+ const v=VIDS[n.vk];
+ openOv(`<div class="ovh"><button class="x" onclick="__c()">✕</button><div class="pbar"><i style="width:100%"></i></div></div>
+ <div class="ovb"><h3 class="qt">▶ ${v.t}</h3>
+ <div class="vidbox"><iframe src="https://www.youtube.com/embed/${v.id}?rel=0" title="${v.t}" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
+ <div class="jr"><b class="gold">WATCH FOR:</b> ${v.n}</div>
+ <p class="small"><a href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener"><button class="big blue" style="max-width:240px;padding:10px 0">▶ OPEN ON YOUTUBE</button></a></p>
+ <p class="small" style="margin-top:8px">Take at least one note in your journal before marking complete.</p></div>
+ <div class="ovf"><button class="big" id="go">MARK WATCHED · +25 XP</button></div>`);
+ window.__c=closeOv;
+ ov.querySelector('#go').onclick=()=>{const first=!S.n[n.id];S.n[n.id]=1;if(first)addXP(25);save();cele(first?25:0,'Video complete!',v.t)};}
+/* chart drawing */
+function drawChart(cv,candles,fut){
+ const ctx=cv.getContext('2d');const W=cv.width=680,H=cv.height=360;
+ ctx.fillStyle='#0d110d';ctx.fillRect(0,0,W,H);
+ const all=fut?candles.concat(fut):candles;
+ let mn=1e18,mx=-1e18;all.forEach(c=>{mn=Math.min(mn,c[2]);mx=Math.max(mx,c[1])});
+ const pad=(mx-mn)*0.06;mn-=pad;mx+=pad;
+ const N=candles.length+(fut?fut.length:8);
+ const cw=W/(N+2),bw=Math.max(2,cw*0.6);
+ const y=p=>H-(p-mn)/(mx-mn)*H;
+ ctx.strokeStyle='#1a221a';ctx.lineWidth=1;
+ for(let g=1;g<5;g++){ctx.beginPath();ctx.moveTo(0,H*g/5);ctx.lineTo(W,H*g/5);ctx.stroke()}
+ function candle(c,i,dim){
+  const x=cw*(i+1);const up=c[3]>=c[0];
+  ctx.strokeStyle=ctx.fillStyle=dim?(up?'rgba(57,211,83,.45)':'rgba(229,72,77,.45)'):(up?'#39d353':'#e5484d');
+  ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(x,y(c[1]));ctx.lineTo(x,y(c[2]));ctx.stroke();
+  const t=y(Math.max(c[0],c[3])),b=y(Math.min(c[0],c[3]));
+  ctx.fillRect(x-bw/2,t,bw,Math.max(2,b-t));}
+ candles.forEach((c,i)=>candle(c,i,false));
+ if(fut){fut.forEach((c,i)=>candle(c,candles.length+i,true));
+  const x=cw*(candles.length+.5);ctx.strokeStyle='#ffc800';ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();ctx.setLineDash([]);}
+ else{const x=cw*(candles.length+.5);ctx.strokeStyle='#ffc800';ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#ffc800';ctx.font='12px sans-serif';ctx.fillText('YOU ARE HERE',Math.min(x+6,W-100),16);}}
+/* drill */
+function drillScreen(n){
+ let i=0,ok=0,ans=false;
+ function draw(reveal){
+  const d=DRILLS[n.set[i]];
+  openOv(`<div class="ovh"><button class="x" onclick="__c()">✕</button><div class="pbar"><i style="width:${i/n.set.length*100}%"></i></div><span class="pill r">❤️ ${S.h}</span></div>
+  <div class="ovb"><p class="small">REAL ${d.m} CHART · daily candles · ${i+1}/${n.set.length}</p>
+  <h3 class="qt">${reveal?'What actually happened:':'Your play at the right edge?'}</h3>
+  <canvas class="ch" id="cv"></canvas>
+  <div id="fb"></div>
+  ${reveal?'':`<div class="tri"><button class="big" id="B">BUY</button><button class="big blue" id="K">SKIP</button><button class="big red" id="S">SELL</button></div>`}
+  </div>
+  ${reveal?`<div class="ovf"><button class="big" id="nx">CONTINUE</button></div>`:''}`);
+  window.__c=closeOv;
+  drawChart(ov.querySelector('#cv'),d.c,reveal?d.f:null);
+  if(!reveal){
+   ['B','K','S'].forEach(k=>{ov.querySelector('#'+k).onclick=()=>{
+    if(ans)return;ans=true;
+    const right=k===d.a;
+    if(right){ok++;addXP(3)}else loseHeart();
+    const verdict=d.a==='B'?'BUY was right':d.a==='S'?'SELL was right':'SKIP was right (it went nowhere)';
+    ov.querySelector('#fb').appendChild(el(`<div class="why"><b class="${right?'g':'r'}">${right?'✓ CORRECT':'✗ WRONG'}</b> — ${verdict}: price moved <b>${d.chg>0?'+':''}${d.chg}%</b> over the next 8 sessions.</div>`));
+    draw(true)}});}
+  else{ov.querySelector('#nx').onclick=()=>{i++;ans=false;
+   if(i>=n.set.length){S.n[n.id]=1;S.scores[n.id]=Math.max(S.scores[n.id]||0,ok);save();
+    cele(ok*3,`Drill done · ${ok}/${n.set.length}`,'Real charts, real outcomes. The reveal candles are what the market actually did.');return}
+   draw(false)}}}
+ draw(false);}
+/* quiz */
+let qq=null;
+function quizScreen(n,bank,title,passN,onEnd,isExam=false){
+ qq={qs:[...bank],i:0,ok:0,ans:false};
+ function draw(){
+  const q=qq.qs[qq.i];
+  openOv(`<div class="ovh"><button class="x" onclick="__c()">✕</button><div class="pbar"><i style="width:${qq.i/qq.qs.length*100}%"></i></div><span class="pill r">❤️ ${S.h}</span><span class="pill g">${qq.ok}✓</span></div>
+  <div class="ovb"><p class="small">${title} · ${qq.i+1}/${qq.qs.length}</p><h3 class="qt">${q[1]}</h3><div id="o"></div><div id="fb"></div></div>
+  <div class="ovf"><button class="big" id="nx" disabled>CHECK</button></div>`);
+  window.__c=()=>{qq=null;closeOv()};
+  const o=ov.querySelector('#o'),nx=ov.querySelector('#nx');let sel=-1;
+  q[2].forEach((x,oi)=>{const b=el(`<button class="opt">${x}</button>`);
+   b.onclick=()=>{if(qq.ans)return;sel=oi;[...o.children].forEach(c=>c.classList.remove('sel'));b.classList.add('sel');nx.disabled=false};
+   o.appendChild(b)});
+  nx.onclick=()=>{
+   if(!qq.ans){qq.ans=true;
+    if(sel===q[3]){o.children[sel].classList.add('right');qq.ok++;addXP(2)}
+    else{o.children[sel].classList.add('wrong');o.children[q[3]].classList.add('right');loseHeart()}
+    ov.querySelector('#fb').appendChild(el(`<div class="why">${q[4]}</div>`));
+    nx.textContent='CONTINUE';
+    if(S.h<=0&&!isExam){nx.textContent='OUT OF HEARTS';}
+    return}
+   if(S.h<=0&&!isExam){qq=null;noHearts();return}
+   qq.i++;qq.ans=false;
+   if(qq.i>=qq.qs.length){const ok=qq.ok;onEnd(ok);const passed=ok>=passN;
+    if(isExam)cele(ok*2,passed?'👑 EXAM PASSED':`Not yet — ${ok}/${qq.qs.length}`,passed?'Course conquered. Screenshot for the records.':`Need ${passN}. Review and rechallenge.`);
+    else cele(ok*2,`${ok}/${qq.qs.length} correct`,passed?'Checkpoint cleared.':'Cleared — retake anytime for a better score.');
+    qq=null;return}
+   draw()};}
+ draw();}
+/* ============ REVIEW ============ */
+function allCards(){const A=[];COURSES.forEach((c,ci)=>c.cards.forEach((cd,i)=>A.push({key:ci+'_'+i,cd})));return A}
+function dueCards(){const t=today();return allCards().filter(c=>{const s=S.lt[c.key];return !s||s.due<=t})}
+let dr=null;
+function review(){
+ const due=dueCards(),doneToday=S.streak.last===today();
+ const w=el(`<div class="wrap"><div class="card"><h3>🔁 Daily Review</h3>
+  <p class="small">5 due flashcards + 5 mixed questions ≈ 5 min. Known cards return later (1→2→4 days); misses come back tomorrow. Completing earns ❤️+1 and keeps the 🔥.</p>
+  <div class="row" style="margin-top:10px"><span class="pill">${due.length} due</span><span class="pill">🔥 ${S.streak.n}</span><span class="pill">❤️ ${S.h}</span><span class="pill">today ⚡${S.today.d===today()?S.today.xp:0}</span>${doneToday?'<span class="pill g">✓ done today</span>':''}</div>
+  <div style="margin-top:14px"><button class="big" id="go" ${due.length===0&&doneToday?'disabled':''}>START · +15 XP +❤️</button></div></div></div>`);
+ w.querySelector('#go').onclick=()=>{
+  const cards=due.slice(0,5);
+  const q=[...C1.quiz.easy,...C1.quiz.medium,...C1.quiz.hard,...C2.quiz.easy,...C2.quiz.medium,...C2.quiz.hard,...C3.quiz.easy,...C3.quiz.medium,...C3.quiz.hard].sort(()=>Math.random()-.5).slice(0,5);
+  dr={cards,q,ci:0,flip:false,qi:-1,ok:0,ans:false};drDraw()};
+ page.appendChild(w);}
+function drDraw(){
+ if(dr.ci<dr.cards.length){
+  const c=dr.cards[dr.ci],cd=c.cd;
+  openOv(`<div class="ovh"><button class="x" onclick="__c()">✕</button><div class="pbar"><i style="width:${dr.ci/(dr.cards.length+dr.q.length)*100}%"></i></div></div>
+  <div class="ovb"><p class="small">CARD ${dr.ci+1}/${dr.cards.length}</p>
+  <div class="flash" id="f">${dr.flip?cd[1]:cd[0]}</div>
+  <div class="ovf">${dr.flip?`<button class="big red" style="max-width:200px" id="no">✗ AGAIN</button><button class="big" style="max-width:200px" id="ys">✓ GOT IT</button>`:`<button class="big" id="fl">FLIP</button>`}</div></div>`);
+  window.__c=()=>{dr=null;closeOv()};
+  ov.querySelector('#f').onclick=()=>{dr.flip=!dr.flip;drDraw()};
+  const fl=ov.querySelector('#fl');if(fl)fl.onclick=()=>{dr.flip=true;drDraw()};
+  const adv=okk=>{const s=S.lt[dr.cards[dr.ci].key]||{box:1};let box=okk?Math.min(3,(s.box||1)+1):1;
+   const d=new Date();d.setDate(d.getDate()+(box===1?1:box===2?2:4));
+   S.lt[dr.cards[dr.ci].key]={box,due:d.toISOString().slice(0,10)};save();dr.ci++;dr.flip=false;drDraw()};
+  const ys=ov.querySelector('#ys');if(ys){ys.onclick=()=>adv(true);ov.querySelector('#no').onclick=()=>adv(false)}
+  return}
+ if(dr.qi===-1)dr.qi=0;
+ if(dr.qi<dr.q.length){
+  const q=dr.q[dr.qi];
+  openOv(`<div class="ovh"><button class="x" onclick="__c()">✕</button><div class="pbar"><i style="width:${(dr.cards.length+dr.qi)/(dr.cards.length+dr.q.length)*100}%"></i></div></div>
+  <div class="ovb"><p class="small">Q ${dr.qi+1}/${dr.q.length}</p><h3 class="qt">${q[1]}</h3><div id="o"></div><div id="fb"></div>
+  <div class="ovf"><button class="big" id="n" disabled>CHECK</button></div></div>`);
+  window.__c=()=>{dr=null;closeOv()};
+  const o=ov.querySelector('#o'),nb=ov.querySelector('#n');let sel=-1;
+  q[2].forEach((x,oi)=>{const b=el(`<button class="opt">${x}</button>`);
+   b.onclick=()=>{if(dr.ans)return;sel=oi;[...o.children].forEach(c=>c.classList.remove('sel'));b.classList.add('sel');nb.disabled=false};
+   o.appendChild(b)});
+  nb.onclick=()=>{
+   if(!dr.ans){dr.ans=true;
+    if(sel===q[3]){o.children[sel].classList.add('right');dr.ok++;addXP(2)}
+    else{o.children[sel].classList.add('wrong');o.children[q[3]].classList.add('right')}
+    ov.querySelector('#fb').appendChild(el(`<div class="why">${q[4]}</div>`));nb.textContent='CONTINUE';return}
+   dr.qi++;dr.ans=false;drDraw()};
+  return}
+ const t=today();
+ if(S.streak.last!==t){const y=new Date();y.setDate(y.getDate()-1);
+  S.streak.n=(S.streak.last===y.toISOString().slice(0,10))?S.streak.n+1:1;S.streak.last=t;}
+ S.h=Math.min(5,S.h+1);addXP(15);save();
+ cele(15+dr.ok*2,'Review done · 🔥 '+S.streak.n,`${dr.ok}/${dr.q.length} correct · ❤️ +1 — same time tomorrow.`);dr=null;}
+/* ============ CARDS TAB ============ */
+let fi=0,ff=false;
+function cardsTab(){
+ const A=allCards(),c=A[fi].cd,ci=+A[fi].key.split('_')[0];
+ const w=el(`<div class="wrap"><div class="card"><div class="row"><span class="pill">CARD ${fi+1}/${A.length}</span><span class="pill">${COURSES[ci].name.split('·')[1]}</span></div>
+  <div class="flash" id="f" style="margin-top:12px">${ff?c[1]:c[0]}</div>
+  <div class="row" style="justify-content:center"><button class="big" style="max-width:110px" id="pv">←</button><button class="big gold" style="max-width:160px" id="fl">FLIP</button><button class="big" style="max-width:110px" id="nx">→</button></div>
+  <p class="small" style="margin-top:10px">Free browse — the Review tab runs the spaced schedule.</p></div></div>`);
+ w.querySelector('#f').onclick=()=>{ff=!ff;render()};
+ w.querySelector('#fl').onclick=()=>{ff=!ff;render()};
+ w.querySelector('#pv').onclick=()=>{fi=(fi-1+A.length)%A.length;ff=false;render()};
+ w.querySelector('#nx').onclick=()=>{fi=(fi+1)%A.length;ff=false;render()};
+ page.appendChild(w);}
+/* ============ STATS ============ */
+function stats(){
+ const done=Object.keys(S.n).filter(k=>S.n[k]).length,total=PATHS[0].length+PATHS[1].length+PATHS[2].length;
+ const lvl=Math.floor(S.xp/100)+1,into=S.xp%100;
+ const w=el(`<div class="wrap">
+  <div class="card"><div class="row">
+   <div class="ring" style="background:conic-gradient(var(--gold) ${into*3.6}deg,#1a221a 0)"><span style="background:var(--panel);width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center">LVL ${lvl}</span></div>
+   <div><h3>⚡ ${S.xp} XP total</h3><p class="small">${100-into} XP to level ${lvl+1} · today ⚡${S.today.d===today()?S.today.xp:0} · ❤️ refill daily</p></div></div></div>
+  <div class="card"><h3>Journey — ${total} nodes ≈ a 90-day discipline habit</h3><div class="pbar" style="margin:10px 0"><i style="width:${done/total*100}%"></i></div>
+   <div class="row"><span class="pill">${done}/${total} nodes</span><span class="pill">🔥 ${S.streak.n}</span>
+   <span class="pill ${S.n['c0X']?'g':''}">C1 Mindset ${S.n['c0X']?'👑':''}</span>
+   <span class="pill ${S.n['c1X']?'g':''}">C2 Zone ${S.n['c1X']?'👑':''}</span>
+   <span class="pill ${S.n['c2X']?'g':''}">C3 Price Action ${S.n['c2X']?'👑':''}</span></div>
+   <p class="small" style="margin-top:8px">Pace: ~1 node/day + Daily Review. Videos count as nodes. Drills use real gold/NQ history — the reveal is what actually happened.</p></div>
+  <div class="card"><h3>Library — read next</h3>
+   <p style="margin:8px 0"><b class="g">In the Academy:</b> The Forex Mindset (Martinez) · Trading in the Zone (Douglas)</p>
+   <p class="small">After these: Best Loser Wins (Hougaard — his interview is the C2 finale) · Market Wizards (Schwager) · Reminiscences of a Stock Operator.</p></div>
+  <div class="card"><h3>Reset</h3><button class="big red" style="max-width:220px" id="rz">RESET ALL PROGRESS</button></div>
+ </div>`);
+ w.querySelector('#rz').onclick=()=>{if(confirm('Wipe all Academy progress?')){localStorage.removeItem(K);location.reload()}};
+ page.appendChild(w);}
+render();
+</script>
+</body>
+</html>
