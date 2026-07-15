@@ -27,12 +27,14 @@ body{background:var(--ink);color:var(--snow);font-family:var(--body);overflow-x:
 a{color:inherit;text-decoration:none}
 ::selection{background:var(--gold);color:var(--ink)}
 
-/* world canvas */
+/* world canvas: Chakka's tree, scrubbed by scroll */
 #world{position:fixed;inset:0;z-index:0;pointer-events:none}
-#world canvas{display:block;width:100%;height:100%}
-@media(max-width:760px){#world{opacity:.4}}
+#world video{display:block;width:100%;height:100%;object-fit:cover;object-position:72% center}
+@media(max-width:760px){#world video{object-position:center}}
+#world::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,var(--ink) 16%,rgba(11,10,9,.6) 46%,rgba(11,10,9,.08) 72%)}
+@media(max-width:760px){#world::after{background:rgba(11,10,9,.62)}}
 .no3d #world{display:none}
-#fallback{display:none;position:fixed;right:4vw;top:22vh;z-index:0;width:min(38vw,340px);opacity:.5;pointer-events:none}
+#fallback{display:none;position:fixed;right:0;top:0;height:100vh;z-index:0;opacity:.55;pointer-events:none}
 .no3d #fallback{display:block}
 
 /* viewport brackets: the instrument frame */
@@ -151,7 +153,7 @@ footer .fcol a:hover{color:var(--gold)}
 <span class="vbr a"></span><span class="vbr b"></span><span class="vbr c"></span><span class="vbr d"></span>
 
 <div id="world" aria-hidden="true"></div>
-<img id="fallback" src="assets/logo-gold.png" alt="">
+<img id="fallback" src="assets/chakka-tree.png" alt="">
 
 <nav aria-label="Main navigation"><div class="nav-in">
   <a class="mark" href="#top" aria-label="Bad Apple 17BA home"><img src="assets/logo-gold.png" alt="BAD" width="42" height="34"><small>17BA</small></a>
@@ -290,124 +292,38 @@ addEventListener('load',()=>setTimeout(bootOff,300));
 setTimeout(bootOff,1600);
 </script>
 
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
-<script type="module">
-/* ============ THE FALL: a gold apple that bruises on scroll ============
-   One world, one material. Points only, no models, no textures.
-   Fails => .no3d (static logo). Reduced motion => single still frame. */
-import * as THREE from 'three';
+<script>
+/* ============ THE TREE: Chakka climbs down as you scroll ============
+   One 16s keyframe-dense video scrubbed by scroll (climb, then the bite
+   at the base). Video seeking uses the hardware decoder, so it stays
+   light on weak GPUs. Fails => .no3d (static poster). */
+(function(){
+  const mount=document.getElementById('world');
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  try{
+    const v=document.createElement('video');
+    v.muted=true;v.playsInline=true;v.preload='auto';
+    v.setAttribute('muted','');v.setAttribute('playsinline','');
+    v.src='tree/chakka.mp4';
+    v.addEventListener('error',()=>document.documentElement.classList.add('no3d'));
+    mount.appendChild(v);
+    let dur=0;
+    v.addEventListener('loadedmetadata',()=>{dur=v.duration;v.currentTime=0.001});
+    if(!reduce){
+      let seeking=false;
+      v.addEventListener('seeked',()=>{seeking=false});
+      (function frame(){
+        requestAnimationFrame(frame);
+        if(!dur||seeking)return;
+        const max=document.documentElement.scrollHeight-innerHeight;
+        const p=max>0?Math.min(1,Math.max(0,scrollY/max)):0;  // read in rAF, no scroll listener
+        const t=Math.min(dur-.05,p*dur);
+        if(Math.abs(t-v.currentTime)>.07){seeking=true;v.currentTime=t}
+      })();
+    }
+  }catch(e){document.documentElement.classList.add('no3d')}
+})();
 
-const mount=document.getElementById('world');
-const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-const mobile=innerWidth<760;
-try{
-  const renderer=new THREE.WebGLRenderer({antialias:false,alpha:true,powerPreference:'low-power'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
-  renderer.setSize(innerWidth,innerHeight);
-  mount.appendChild(renderer.domElement);
-
-  const scene=new THREE.Scene();
-  const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,.1,50);
-  camera.position.set(0,0,4.6);
-
-  /* ---- sample the apple as points ---- */
-  const N=mobile?3200:7000, DUST=mobile?60:140, STEM=mobile?160:360;
-  const total=N+STEM+DUST;
-  const pos=new Float32Array(total*3), rnd=new Float32Array(total), kind=new Float32Array(total);
-  let i3=0,ii=0;
-  const put=(x,y,z,k)=>{pos[i3++]=x;pos[i3++]=y;pos[i3++]=z;rnd[ii]=Math.random();kind[ii++]=k};
-  // apple body: lathe profile with top dimple
-  for(let n=0;n<N;n++){
-    const u=Math.acos(1-2*Math.random());            // polar, uniform-ish on sphere
-    const ph=Math.random()*Math.PI*2;
-    let r=Math.sin(u)*(1+.10*Math.cos(u));           // wider shoulders
-    let y=-Math.cos(u)*1.02;
-    y-=.34*Math.exp(-Math.pow((u)/.42,2));           // top dimple (u≈0 is top)
-    y+=.16*Math.exp(-Math.pow((Math.PI-u)/.5,2));    // bottom pucker
-    r*=1+.012*Math.sin(5*ph);                        // subtle lobes
-    put(Math.cos(ph)*r, y, Math.sin(ph)*r, 0);
-  }
-  // stem
-  for(let n=0;n<STEM;n++){
-    const t=Math.random();
-    put((Math.random()-.5)*.05+t*.16, .62+t*.55, (Math.random()-.5)*.05, 2);
-  }
-  // orchard dust
-  for(let n=0;n<DUST;n++){
-    const R=2.2+Math.random()*2.6, th=Math.random()*Math.PI*2, ps=(Math.random()-.5)*Math.PI;
-    put(Math.cos(th)*Math.cos(ps)*R, Math.sin(ps)*R*.8, Math.sin(th)*Math.cos(ps)*R, 1);
-  }
-  const geo=new THREE.BufferGeometry();
-  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
-  geo.setAttribute('aRnd',new THREE.BufferAttribute(rnd,1));
-  geo.setAttribute('aKind',new THREE.BufferAttribute(kind,1));
-
-  const uni={
-    uTime:{value:0}, uBruise:{value:0}, uSize:{value:mobile?2.4:2.9},
-    uDir:{value:new THREE.Vector3(.55,.2,.79).normalize()},
-  };
-  const mat=new THREE.ShaderMaterial({
-    uniforms:uni, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
-    vertexShader:`
-      attribute float aRnd; attribute float aKind;
-      uniform float uTime,uSize,uBruise; uniform vec3 uDir;
-      varying float vA; varying float vBr; varying float vK; varying float vR;
-      void main(){
-        vec3 p=position; vK=aKind; vR=aRnd;
-        float wob=aKind==1.0?.12:.016;
-        p+=wob*vec3(sin(uTime*.7+aRnd*17.0),cos(uTime*.6+aRnd*23.0),sin(uTime*.8+aRnd*29.0));
-        vBr=(aKind==0.0)?smoothstep(.25,.92,dot(normalize(position),uDir))*uBruise:0.0;
-        vec4 mv=modelViewMatrix*vec4(p,1.0);
-        gl_Position=projectionMatrix*mv;
-        gl_PointSize=uSize*(aKind==1.0?1.4:1.0)*(3.4/-mv.z);
-        vA=aKind==1.0?.16:.85;
-      }`,
-    fragmentShader:`
-      uniform float uTime; varying float vA,vBr,vK,vR;
-      void main(){
-        vec2 c=gl_PointCoord-.5; float d=dot(c,c); if(d>.25)discard;
-        vec3 gold=vec3(.984,.749,.141), ox=vec3(.42,.09,.11), stem=vec3(.55,.36,.13);
-        vec3 col=vK==2.0?stem:mix(gold,ox,vBr);
-        float tw=.75+.25*sin(uTime*1.4+vR*6.283);
-        float a=vA*tw*smoothstep(.25,.05,d)*(1.0-vBr*.35);
-        gl_FragColor=vec4(col,a);
-      }`
-  });
-  const apple=new THREE.Points(geo,mat);
-  const grp=new THREE.Group(); grp.add(apple); scene.add(grp);
-
-  const place=()=>{grp.position.x = innerWidth<760 ? 0 : Math.min(1.55, .6+innerWidth/1400);};
-  place();
-
-  let mx=0,my=0;
-  addEventListener('pointermove',e=>{mx=(e.clientX/innerWidth-.5);my=(e.clientY/innerHeight-.5)},{passive:true});
-
-  const clock=new THREE.Clock(); let raf=0;
-  const frame=()=>{
-    raf=requestAnimationFrame(frame);
-    const t=clock.getElapsedTime();
-    const max=document.documentElement.scrollHeight-innerHeight;
-    const p=max>0?Math.min(1,Math.max(0,scrollY/max)):0;   // read in rAF, no scroll listener
-    uni.uTime.value=t;
-    uni.uBruise.value=THREE.MathUtils.smoothstep(p,.38,.82);
-    grp.rotation.y=t*.14+p*2.2+mx*.35;
-    grp.rotation.x=.12+p*.25+my*.2;
-    camera.position.z=4.6-.5*Math.sin(p*Math.PI);
-    renderer.render(scene,camera);
-  };
-  if(reduce){ // one still frame, pristine
-    uni.uTime.value=1; grp.rotation.y=.6; renderer.render(scene,camera);
-  }else{
-    frame();
-    document.addEventListener('visibilitychange',()=>{
-      if(document.hidden)cancelAnimationFrame(raf); else frame();
-    });
-  }
-  addEventListener('resize',()=>{
-    renderer.setSize(innerWidth,innerHeight);
-    camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();place();
-  });
-}catch(e){document.documentElement.classList.add('no3d')}
 </script>
 <noscript><style>#world{display:none}#fallback{display:block}</style></noscript>
 </body>
