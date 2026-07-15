@@ -3,199 +3,412 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#080808">
+<meta name="theme-color" content="#0b0a09">
 <title>BAD APPLE 17BA — The Portal</title>
-<meta name="description" content="Bad Apple 17BA Enterprise — trading bots, clothing drops, gym fuel, academy. Fallen from the tree. Sharper for the fall.">
-<meta property="og:title" content="BAD APPLE 17BA — The Portal">
+<meta name="description" content="Bad Apple 17BA Enterprise. Trading bots, clothing drops, gym fuel, academy. Fallen from the tree. Sharper for the fall.">
+<meta property="og:title" content="BAD APPLE 17BA">
 <meta property="og:description" content="One company. Four lanes. Fallen from the tree. Sharper for the fall.">
 <meta property="og:image" content="hero.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/logo-gold.png">
 <style>
+/* THE FALL — one world, one material. Gold that bruises. */
 :root{
-  --ink:#080808;--surface:#121212;--line:#ffffff14;
-  --gold:#FBBF24;--gold-soft:#FBBF2466;--gold-dim:#FBBF2412;
-  --oxblood:#7B1E22;--snow:#fff;--dim:rgba(255,255,255,.6);--faint:rgba(255,255,255,.35);
+  --ink:#0b0a09;--snow:#f2efe9;--dim:rgba(242,239,233,.62);--faint:rgba(242,239,233,.34);
+  --gold:#FBBF24;--gold-soft:rgba(251,191,36,.4);--gold-dim:rgba(251,191,36,.07);
+  --line:rgba(242,239,233,.09);
+  --disp:'Archivo Black',sans-serif;--body:'Archivo',sans-serif;--mono:'IBM Plex Mono',monospace;
 }
 *{box-sizing:border-box;margin:0}
 html{scroll-behavior:smooth}
-body{background:var(--ink);color:var(--snow);font-family:Inter,system-ui,sans-serif;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:radial-gradient(60% 40% at 50% 0%,#FBBF2409,transparent),radial-gradient(40% 30% at 85% 80%,#7B1E2214,transparent)}
+body{background:var(--ink);color:var(--snow);font-family:var(--body);overflow-x:hidden}
 a{color:inherit;text-decoration:none}
-.wrap{max-width:1080px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
+::selection{background:var(--gold);color:var(--ink)}
 
-/* ---- NAV ---- */
-nav{position:sticky;top:0;z-index:10;background:#080808e8;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.nav-in{display:flex;align-items:center;gap:26px;padding:16px 0}
-.logo{width:44px;height:44px;border-radius:11px;background:linear-gradient(160deg,#FDE68A,var(--gold));display:grid;place-items:center;flex:none;box-shadow:0 0 24px #FBBF2433}
-.logo span{font-family:'Archivo Black';font-size:.72rem;color:#080808;letter-spacing:.02em}
+/* world canvas */
+#world{position:fixed;inset:0;z-index:0;pointer-events:none}
+#world canvas{display:block;width:100%;height:100%}
+@media(max-width:760px){#world{opacity:.4}}
+.no3d #world{display:none}
+#fallback{display:none;position:fixed;right:4vw;top:22vh;z-index:0;width:min(38vw,340px);opacity:.5;pointer-events:none}
+.no3d #fallback{display:block}
+
+/* viewport brackets: the instrument frame */
+.vbr{position:fixed;width:22px;height:22px;border:2px solid var(--gold);z-index:40;pointer-events:none;opacity:.7}
+.vbr.a{top:14px;left:14px;border-right:0;border-bottom:0}
+.vbr.b{top:14px;right:14px;border-left:0;border-bottom:0}
+.vbr.c{bottom:14px;left:14px;border-right:0;border-top:0}
+.vbr.d{bottom:14px;right:14px;border-left:0;border-top:0}
+
+/* boot */
+#boot{position:fixed;inset:0;z-index:60;background:var(--ink);display:grid;place-items:center;transition:opacity .5s ease}
+#boot.off{opacity:0;pointer-events:none}
+#boot .b-in{font-family:var(--mono);color:var(--gold);font-size:.8rem;letter-spacing:.5em;text-align:center}
+#boot .ticks{margin-top:14px;font-size:.7rem;letter-spacing:.18em;color:var(--faint);animation:tick 1s steps(6) infinite}
+@keyframes tick{to{color:var(--gold)}}
+@media(prefers-reduced-motion:reduce){#boot{display:none}}
+
+/* nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:50;background:linear-gradient(rgba(11,10,9,.92),rgba(11,10,9,.75) 70%,transparent);height:64px}
+.nav-in{max-width:1500px;margin:0 auto;height:64px;padding:0 clamp(18px,3vw,44px);display:flex;align-items:center;gap:28px}
 .mark{display:flex;align-items:center;gap:10px;flex:none}
-.mark img{height:42px;width:auto;filter:drop-shadow(0 0 14px #FBBF2422)}
-.mark small{font-family:'Archivo Black';font-size:.6rem;color:var(--gold);letter-spacing:.3em}
-.links{display:flex;gap:26px;margin:0 auto}
-.links a{font-size:.74rem;font-weight:800;letter-spacing:.22em;color:var(--dim);transition:color .2s}
+.mark img{height:34px;width:auto}
+.mark small{font-family:var(--mono);font-weight:600;font-size:.62rem;color:var(--gold);letter-spacing:.3em}
+.links{display:flex;gap:26px;margin-left:auto}
+.links a{font-family:var(--mono);font-size:.68rem;font-weight:600;letter-spacing:.22em;color:var(--dim);transition:color .2s}
 .links a:hover,.links a:focus-visible{color:var(--gold)}
-.login{border:1px solid var(--gold-soft);border-radius:9px;padding:9px 22px;font-size:.74rem;font-weight:800;letter-spacing:.2em;color:var(--gold);transition:.2s}
-.login:hover{background:var(--gold);color:#080808;box-shadow:0 0 30px #FBBF2455}
-@media(max-width:760px){.links{display:none}.nav-in{justify-content:space-between}}
+.login{flex:none;border:1px solid var(--gold-soft);padding:9px 20px;font-family:var(--mono);font-size:.68rem;font-weight:600;letter-spacing:.2em;color:var(--gold);transition:background .2s,color .2s}
+.login:hover,.login:focus-visible{background:var(--gold);color:var(--ink)}
+@media(max-width:860px){.links{display:none}.nav-in{justify-content:space-between}}
 
-/* ---- FRAME + BRACKETS ---- */
-.frame{position:relative;border:1px solid var(--gold-soft);margin-top:28px;padding:clamp(20px,5vw,56px) clamp(14px,4vw,48px) 0;overflow:hidden}
-.br{position:absolute;width:34px;height:34px;border:3px solid var(--gold);z-index:2}
-.br.tl{top:10px;left:10px;border-right:0;border-bottom:0}
-.br.tr{top:10px;right:10px;border-left:0;border-bottom:0}
-.br.bl{bottom:10px;left:10px;border-right:0;border-top:0}
-.br.brr{bottom:10px;right:10px;border-left:0;border-top:0}
+main{position:relative;z-index:1}
+.col{max-width:1500px;width:100%;margin:0 auto;padding:0 clamp(18px,3vw,44px)}
 
-/* ---- HERO ---- */
-.hero h1{font-family:'Archivo Black';font-size:clamp(3rem,11vw,7.2rem);line-height:.92;text-align:center;letter-spacing:-.01em}
-.hero .num{display:block;text-align:right;font-family:'Archivo Black';color:var(--gold);font-size:clamp(1.6rem,5vw,3.2rem);margin:6px clamp(4px,6vw,60px) 0 0;text-shadow:0 0 30px #FBBF2455}
-.hero-img{display:block;width:100%;max-width:760px;margin:8px auto 0}
-.hero-img img{width:100%;display:block}
-.creed{ text-align:center;color:var(--gold);font-size:clamp(.72rem,2vw,.85rem);font-weight:600;letter-spacing:.34em;text-transform:uppercase;padding:22px 10px 26px;border-top:1px solid var(--line);margin-top:-4px}
+/* hero: asymmetric, apple owns the right */
+.hero{min-height:100dvh;display:flex;align-items:center;padding-top:64px}
+.hero-in{max-width:760px}
+.hero h1{font-family:var(--disp);font-size:clamp(3.4rem,10vw,8.5rem);line-height:.88;letter-spacing:-.01em;text-transform:uppercase}
+.hero h1 .row2{display:flex;align-items:baseline;gap:.35em}
+.hero h1 .num{color:var(--gold);font-size:.42em}
+.hero p{margin-top:26px;font-size:clamp(.95rem,1.4vw,1.1rem);line-height:1.6;color:var(--dim);max-width:34ch}
+.hero .go{display:inline-block;margin-top:34px;background:var(--gold);color:var(--ink);font-family:var(--mono);font-weight:600;font-size:.74rem;letter-spacing:.24em;padding:16px 34px;transition:transform .18s cubic-bezier(.16,1,.3,1)}
+.hero .go:hover{transform:translateY(-2px)}
+.hero .go:active{transform:translateY(0) scale(.98)}
 
-/* ---- PORTAL ---- */
-h2.sec{font-family:'Archivo Black';text-align:center;font-size:clamp(1.1rem,3vw,1.5rem);letter-spacing:.4em;margin:64px 0 30px}
-.portal{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-@media(max-width:860px){.portal{grid-template-columns:repeat(2,1fr)}}
-.card{position:relative;border:1px solid var(--gold-soft);background:linear-gradient(155deg,#141414,#0c0c0c 55%,#160b0c);padding:38px 12px 30px;text-align:center;transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s;display:block;color:var(--snow);font-family:inherit;cursor:pointer;width:100%}
-.card:hover,.card:focus-visible{transform:translateY(-6px);box-shadow:0 14px 44px #00000090,0 0 34px #FBBF2422;border-color:var(--gold)}
-.card .br{width:20px;height:20px;border-width:2px}
-.card .br.tl{top:7px;left:7px}.card .br.tr{top:7px;right:7px}.card .br.bl{bottom:7px;left:7px}.card .br.brr{bottom:7px;right:7px}
-.card svg{width:52px;height:52px;stroke:var(--gold);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 8px #FBBF2455)}
-.card h3{font-size:.78rem;font-weight:800;letter-spacing:.22em;margin-top:20px}
-.card p{font-size:.68rem;color:var(--faint);letter-spacing:.06em;margin-top:8px}
-.soon-tag{position:absolute;top:14px;right:16px;font-size:.56rem;font-weight:800;letter-spacing:.2em;color:#080808;background:var(--gold);padding:3px 8px;border-radius:5px}
-.card .cta{display:inline-block;margin-top:14px;font-size:.66rem;font-weight:800;letter-spacing:.18em;color:var(--gold)}
+/* lanes: index rows, not cards */
+.lanes{padding:14vh 0 10vh}
+h2{font-family:var(--disp);font-size:clamp(1.6rem,3.6vw,2.6rem);text-transform:uppercase;letter-spacing:.02em;margin-bottom:38px}
+.lane{display:grid;grid-template-columns:70px 1fr auto;align-items:center;gap:clamp(14px,3vw,40px);padding:26px 10px;border-top:1px solid var(--line);transition:background .25s;position:relative}
+.lane:last-of-type{border-bottom:1px solid var(--line)}
+.lane:hover,.lane:focus-visible{background:var(--gold-dim)}
+.lane .ix{font-family:var(--mono);font-size:.78rem;color:var(--faint)}
+.lane:hover .ix{color:var(--gold)}
+.lane .nm{display:block;font-family:var(--disp);font-size:clamp(1.3rem,3.4vw,2.4rem);text-transform:uppercase;line-height:1;transition:color .2s}
+.lane:hover .nm{color:var(--gold)}
+.lane .ds{font-size:.85rem;color:var(--dim);margin-top:7px;max-width:52ch}
+.lane .tag{font-family:var(--mono);font-size:.6rem;font-weight:600;letter-spacing:.2em;padding:5px 12px;flex:none}
+.tag.live{background:var(--gold);color:var(--ink)}
+.tag.dev{border:1px solid var(--gold-soft);color:var(--gold)}
+.tag.int{border:1px solid var(--line);color:var(--faint)}
+@media(max-width:640px){.lane{grid-template-columns:1fr auto}.lane .ix{display:none}}
 
-/* ---- ABOUT ---- */
-.about{border:1px solid var(--line);background:#0e0e0e;padding:clamp(28px,5vw,54px);margin-top:70px;position:relative}
-.about h2{font-family:'Archivo Black';font-size:clamp(1.4rem,4vw,2.2rem);line-height:1.15;max-width:560px}
-.about h2 em{color:var(--gold);font-style:normal}
-.about p{color:var(--dim);font-size:.95rem;line-height:1.75;max-width:640px;margin-top:18px}
-.about .patois{color:var(--gold);font-weight:600}
-.chars{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:34px}
-@media(max-width:660px){.chars{grid-template-columns:1fr}}
-.char{border:1px solid var(--gold-soft);padding:22px;background:#0a0a0a}
-.char b{font-size:.85rem;letter-spacing:.14em;color:var(--gold)}
-.char span{display:block;font-size:.72rem;letter-spacing:.2em;color:var(--faint);margin:4px 0 10px}
-.char p{font-size:.82rem;margin:0}
+/* ops: mono directory, different family from lanes */
+.ops{padding:8vh 0 12vh}
+.ops-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--line);border:1px solid var(--line);max-width:880px}
+@media(max-width:640px){.ops-grid{grid-template-columns:1fr}}
+.op{background:var(--ink);padding:26px 24px;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;transition:background .2s}
+.op:hover,.op:focus-visible{background:#151310}
+.op b{font-family:var(--mono);font-weight:600;font-size:.8rem;letter-spacing:.16em}
+.op:hover b{color:var(--gold)}
+.op span{display:block;font-size:.78rem;color:var(--faint);margin-top:8px;letter-spacing:.02em}
 
-/* ---- FOOTER ---- */
-footer{border-top:1px solid var(--line);margin-top:80px;padding:44px 0 60px}
-.foot-grid{display:flex;flex-wrap:wrap;gap:36px;justify-content:space-between;align-items:flex-start}
-footer h4{font-size:.68rem;letter-spacing:.28em;color:var(--faint);margin-bottom:14px}
-footer a{display:block;font-size:.8rem;color:var(--dim);padding:4px 0;transition:color .2s}
-footer a:hover{color:var(--gold)}
-.foot-brand{max-width:260px}
-.foot-brand .creedline{font-size:.7rem;letter-spacing:.24em;color:var(--gold);margin-top:12px;line-height:1.8;text-transform:uppercase}
-.copy{margin-top:40px;font-size:.66rem;color:var(--faint);letter-spacing:.1em}
+/* manifesto: the bruise moment */
+.creed{min-height:92dvh;display:grid;place-items:center;text-align:center;padding:10vh 0}
+.creed-in{max-width:820px;background:radial-gradient(closest-side,rgba(11,10,9,.9),transparent);padding:8vh 20px}
+.creed h2{font-size:clamp(1.9rem,5vw,3.6rem);line-height:1.12;margin-bottom:30px;text-transform:none}
+.creed h2 i{font-style:italic;color:var(--gold);line-height:1.15;padding-bottom:4px;display:inline-block}
+.creed p{color:var(--dim);font-size:clamp(.95rem,1.5vw,1.15rem);line-height:1.75;max-width:56ch;margin:0 auto}
+.creed p b{color:var(--snow)}
+.creed .patois{margin-top:26px;font-family:var(--mono);font-weight:600;color:var(--gold);font-size:.85rem;letter-spacing:.3em;text-transform:uppercase}
 
-/* motion */
-.rise{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s cubic-bezier(.16,1,.3,1)}
+/* engines: 50/50 split */
+.engines{padding:4vh 0 14vh}
+.eng-grid{display:grid;grid-template-columns:1fr 1px 1fr;gap:clamp(24px,4vw,60px);align-items:start;max-width:1000px}
+.eng-grid .rule{background:var(--line);height:100%}
+@media(max-width:700px){.eng-grid{grid-template-columns:1fr}.eng-grid .rule{height:1px;width:100%}}
+.eng b{font-family:var(--disp);font-size:clamp(1.4rem,3vw,2.1rem);text-transform:uppercase}
+.eng small{display:block;font-family:var(--mono);font-size:.66rem;letter-spacing:.26em;color:var(--gold);margin:10px 0 16px}
+.eng p{font-size:.92rem;line-height:1.7;color:var(--dim);max-width:44ch}
+
+/* footer */
+footer{position:relative;z-index:1;border-top:1px solid var(--line);background:var(--ink);padding:60px 0 70px}
+.foot-grid{display:flex;flex-wrap:wrap;gap:44px;justify-content:space-between;align-items:flex-start}
+.foot-brand{max-width:280px}
+.foot-brand img{height:46px}
+.foot-brand .creedline{font-family:var(--mono);font-size:.66rem;letter-spacing:.22em;color:var(--gold);margin-top:14px;line-height:2;text-transform:uppercase}
+footer h4{font-family:var(--mono);font-size:.62rem;font-weight:600;letter-spacing:.26em;color:var(--faint);margin-bottom:14px}
+footer .fcol a{display:block;font-size:.82rem;color:var(--dim);padding:4px 0;transition:color .2s}
+footer .fcol a:hover{color:var(--gold)}
+.copy{margin-top:44px;font-family:var(--mono);font-size:.64rem;color:var(--faint);letter-spacing:.08em;line-height:1.9}
+.copy .kgn{color:var(--dim)}
+
+/* reveal */
+.rise{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s cubic-bezier(.16,1,.3,1)}
 .rise.in{opacity:1;transform:none}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.rise{opacity:1;transform:none;transition:none}.card{transition:none}}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .rise{opacity:1;transform:none;transition:none}
+  .hero .go,.lane,.op{transition:none}
+}
 </style>
 </head>
 <body>
 
-<nav aria-label="Main navigation"><div class="wrap nav-in">
-  <a class="mark" href="#top" aria-label="Bad Apple 17BA home"><img src="assets/logo-gold.png" alt="BAD" width="52" height="42"><small>17BA</small></a>
+<div id="boot" aria-hidden="true"><div class="b-in">17BA<div class="ticks">- - - = = +</div></div></div>
+
+<span class="vbr a"></span><span class="vbr b"></span><span class="vbr c"></span><span class="vbr d"></span>
+
+<div id="world" aria-hidden="true"></div>
+<img id="fallback" src="assets/logo-gold.png" alt="">
+
+<nav aria-label="Main navigation"><div class="nav-in">
+  <a class="mark" href="#top" aria-label="Bad Apple 17BA home"><img src="assets/logo-gold.png" alt="BAD" width="42" height="34"><small>17BA</small></a>
   <div class="links">
-    <a href="https://17ba-bad-apple-enterprise.vercel.app" target="_blank" rel="noopener">TRADE</a>
-    <a href="https://17ba-bad-apple-enterprise.vercel.app/collections" target="_blank" rel="noopener">FASHION</a>
+    <a data-site="enterprise" href="https://17ba-bad-apple-enterprise.vercel.app" target="_blank" rel="noopener">TRADE</a>
+    <a data-site="storefront" href="../badapple-template/landing.html">FASHION</a>
     <a href="corefuel.html">FITNESS</a>
-    <a href="#portal">LEARN</a>
+    <a href="academy.html">LEARN</a>
     <a href="#about">ABOUT</a>
   </div>
-  <a class="login" href="https://17ba-bad-apple-enterprise.vercel.app/auth" target="_blank" rel="noopener">LOGIN</a>
+  <a class="login" data-site="auth" href="https://17ba-bad-apple-enterprise.vercel.app/auth" target="_blank" rel="noopener">LOGIN</a>
 </div></nav>
 
-<main class="wrap" id="top">
-  <header class="frame hero">
-    <span class="br tl"></span><span class="br tr"></span><span class="br bl"></span><span class="br brr"></span>
-    <h1>BAD APPLE</h1>
-    <span class="num">17BA</span>
-    <div class="hero-img"><img src="hero.jpg" alt="Chakka and Kwasheba — the Bad Apple honey badgers standing on a rising gold candlestick chart" width="672" height="505" fetchpriority="high"></div>
-    <p class="creed">Fallen from the tree · Sharper for the fall</p>
-  </header>
+<main id="top">
 
-  <h2 class="sec" id="portal">PORTAL</h2>
-  <div class="portal">
-    <a class="card rise" href="https://17ba-bad-apple-enterprise.vercel.app" target="_blank" rel="noopener">
-      <span class="br tl"></span><span class="br tr"></span><span class="br bl"></span><span class="br brr"></span>
-      <svg viewBox="0 0 24 24"><rect x="7" y="9" width="10" height="8" rx="2"/><path d="M12 9V5m0 0h4M9 13h.01M15 13h.01M7 17v3m10-3v3M4 12v3m16-3v3"/></svg>
-      <h3>TRADING BOTS</h3><p>Chakka &amp; Kwasheba · MT5 EAs</p><span class="cta">ENTER →</span>
-    </a>
-    <a class="card rise" href="https://17ba-bad-apple-enterprise.vercel.app/collections" target="_blank" rel="noopener">
-      <span class="br tl"></span><span class="br tr"></span><span class="br bl"></span><span class="br brr"></span>
-      <svg viewBox="0 0 24 24"><path d="M3 15c0-1 .5-2 2-2.5L9 11l2-4 3.5 2c2 1 4.5 2.5 6 4.5.8 1 .3 2.5-1 2.5H4.5C3.5 16 3 15.6 3 15Z"/><path d="M9 11c.5 1 1.5 1.7 2.6 1.4M3 18h18"/></svg>
-      <h3>CLOTHING DROPS</h3><p>Drop 001 · Limited &amp; numbered</p><span class="cta">ENTER →</span>
-    </a>
-    <a class="card rise" href="corefuel.html">
-      <span class="br tl"></span><span class="br tr"></span><span class="br bl"></span><span class="br brr"></span>
-      <svg viewBox="0 0 24 24"><path d="M12 3c2.5 0 4 1.5 4 3.5S14.5 10 12 10s-4-1.5-4-3.5S9.5 3 12 3ZM7 21v-5c0-2.5 2-4 5-4s5 1.5 5 4v5M9 14l3 3 3-3"/></svg>
-      <h3>GYM FUEL</h3><p>CoreFuel · 1,324 exercises</p><span class="cta">ENTER →</span>
-    </a>
-    <a class="card rise" href="academy.html">
-      <span class="br tl"></span><span class="br tr"></span><span class="br bl"></span><span class="br brr"></span>
-      <svg viewBox="0 0 24 24"><path d="m12 4 10 5-10 5L2 9l10-5Z"/><path d="M6 11v5c0 1.5 2.5 3 6 3s6-1.5 6-3v-5M22 9v6"/></svg>
-      <h3>ACADEMY</h3><p>2 courses · XP · streaks · quizzes</p><span class="cta">ENTER →</span>
-    </a>
-  </div>
+  <header class="hero"><div class="col"><div class="hero-in">
+    <h1>Bad<br>Apple<span class="row2"><span>&nbsp;</span><span class="num">17BA</span></span></h1>
+    <p>One company. Four lanes. Bots that trade, clothes that talk, fuel that builds, knowledge that frees.</p>
+    <a class="go" href="#lanes">ENTER</a>
+  </div></div></header>
 
-  <section class="about rise" id="about">
-    <h2>To be called a bad apple is to be called <em>free</em>.</h2>
-    <p>They said the apple that falls far from the tree is spoiled. We say it rolled far enough to grow its own roots. The bruise is not the shame — <b>the bruise is the brand</b>. One company, four lanes: bots that trade, clothes that talk, fuel that builds, knowledge that frees.</p>
-    <p class="patois">We likkle but we tallawah.</p>
-    <div class="chars">
-      <div class="char"><b>CHAKKA</b><span>THE GRIND · M15</span><p>The street hustle. Relentless, aggressive, stacks positions like he stacks ambition. He does not stop.</p></div>
-      <div class="char"><b>KWASHEBA</b><span>THE LEGACY · M1</span><p>Sunday-born. The heritage and the patience. She builds what outlives the trade — the tree that grows from the fallen seed.</p></div>
+  <section class="lanes" id="lanes"><div class="col">
+    <h2>The lanes</h2>
+    <a class="lane rise" data-site="enterprise" href="https://17ba-bad-apple-enterprise.vercel.app" target="_blank" rel="noopener">
+      <span class="ix">01</span>
+      <span><span class="nm">Trade</span><span class="ds">Chakka &amp; Kwasheba. MT5 expert advisors built in Kingston, tested in fire.</span></span>
+      <span class="tag dev">DEV</span>
+    </a>
+    <a class="lane rise" data-site="storefront" href="../badapple-template/landing.html">
+      <span class="ix">02</span>
+      <span><span class="nm">Fashion</span><span class="ds">Drop 001. Limited and numbered. Clothes that talk.</span></span>
+      <span class="tag dev">DEV</span>
+    </a>
+    <a class="lane rise" href="corefuel.html">
+      <span class="ix">03</span>
+      <span><span class="nm">Fitness</span><span class="ds">CoreFuel. 1,324 exercises. Fuel that builds.</span></span>
+      <span class="tag live">LIVE</span>
+    </a>
+    <a class="lane rise" href="academy.html">
+      <span class="ix">04</span>
+      <span><span class="nm">Learn</span><span class="ds">The Academy. Two courses, XP, streaks, quizzes. Knowledge that frees.</span></span>
+      <span class="tag live">LIVE</span>
+    </a>
+  </div></section>
+
+  <section class="ops"><div class="col">
+    <h2>Ops &amp; apps</h2>
+    <div class="ops-grid rise">
+      <a class="op" data-site="pest" href="https://jmac17ba.github.io/pest-tech-pro/" target="_blank" rel="noopener">
+        <span><b>PEST TECH PRO</b><span>Field app. Fly-light roster and reports.</span></span><span class="tag live">LIVE</span>
+      </a>
+      <a class="op" data-site="lifepath" href="../lifepath-app/index.html">
+        <span><b>LIFEPATH</b><span>The plan. Stability by 26.</span></span><span class="tag int">INTERNAL</span>
+      </a>
+      <a class="op" data-site="dashboard" href="../dashboard/index.html">
+        <span><b>TRADING DASH</b><span>Bot farm, backtests, equity.</span></span><span class="tag int">INTERNAL</span>
+      </a>
+      <a class="op" data-site="sandbox" href="../agent-sandbox/index.html">
+        <span><b>AGENT SANDBOX</b><span>Voxel world with placeable agents.</span></span><span class="tag int">INTERNAL</span>
+      </a>
     </div>
-  </section>
+  </div></section>
+
+  <section class="creed" id="about"><div class="col"><div class="creed-in">
+    <h2>To be called a bad apple<br>is to be called <i>free.</i></h2>
+    <p>They said the apple that falls far from the tree is spoiled. We say it rolled far enough to grow its own roots. The bruise is not the shame. <b>The bruise is the brand.</b></p>
+    <p class="patois">We likkle but we tallawah</p>
+  </div></div></section>
+
+  <section class="engines"><div class="col">
+    <div class="eng-grid rise">
+      <div class="eng"><b>Chakka</b><small>THE GRIND · M15</small>
+        <p>The street hustle. Relentless, aggressive, stacks positions like he stacks ambition. He does not stop.</p></div>
+      <div class="rule"></div>
+      <div class="eng"><b>Kwasheba</b><small>THE LEGACY · M1</small>
+        <p>Sunday-born. The heritage and the patience. She builds what outlives the trade, the tree that grows from the fallen seed.</p></div>
+    </div>
+  </div></section>
+
 </main>
 
-<footer><div class="wrap">
+<footer><div class="col">
   <div class="foot-grid">
     <div class="foot-brand">
-      <div class="mark"><img src="assets/logo-snow.png" alt="BAD" style="height:52px" width="64" height="52"></div>
+      <img src="assets/logo-snow.png" alt="BAD" width="56" height="46">
       <div class="creedline">Fallen from the tree.<br>Sharper for the fall.</div>
     </div>
-    <div><h4>COMPANY</h4>
-      <a href="https://17ba-bad-apple-enterprise.vercel.app" target="_blank" rel="noopener">Trading Bots</a>
-      <a href="https://17ba-bad-apple-enterprise.vercel.app/collections" target="_blank" rel="noopener">Clothing Drops</a>
+    <div class="fcol"><h4>COMPANY</h4>
+      <a data-site="enterprise" href="https://17ba-bad-apple-enterprise.vercel.app" target="_blank" rel="noopener">Trading Bots</a>
+      <a data-site="storefront" href="../badapple-template/landing.html">Clothing Drops</a>
       <a href="corefuel.html">CoreFuel</a>
       <a href="academy.html">Academy</a>
     </div>
-    <div><h4>ACCOUNT</h4>
-      <a href="https://17ba-bad-apple-enterprise.vercel.app/auth" target="_blank" rel="noopener">Login / Sign up</a>
-      <a href="https://17ba-bad-apple-enterprise.vercel.app/app" target="_blank" rel="noopener">Dashboard</a>
+    <div class="fcol"><h4>OPS &amp; APPS</h4>
+      <a data-site="pest" href="https://jmac17ba.github.io/pest-tech-pro/" target="_blank" rel="noopener">Pest Tech Pro</a>
+      <a data-site="lifepath" href="../lifepath-app/index.html">LifePath</a>
+      <a data-site="dashboard" href="../dashboard/index.html">Trading Dash</a>
+      <a data-site="sandbox" href="../agent-sandbox/index.html">Agent Sandbox</a>
     </div>
-    <div><h4>LEGAL</h4>
+    <div class="fcol"><h4>ACCOUNT</h4>
+      <a data-site="auth" href="https://17ba-bad-apple-enterprise.vercel.app/auth" target="_blank" rel="noopener">Login / Sign up</a>
+      <a data-site="app" href="https://17ba-bad-apple-enterprise.vercel.app/app" target="_blank" rel="noopener">Dashboard</a>
+    </div>
+    <div class="fcol"><h4>LEGAL</h4>
       <a href="https://17ba-bad-apple-enterprise.vercel.app/terms" target="_blank" rel="noopener">Terms</a>
       <a href="https://17ba-bad-apple-enterprise.vercel.app/risk" target="_blank" rel="noopener">Risk Disclosure</a>
       <a href="https://17ba-bad-apple-enterprise.vercel.app/privacy" target="_blank" rel="noopener">Privacy</a>
     </div>
   </div>
-  <p class="copy">© 2026 BAD APPLE 17BA ENTERPRISE. Trading involves substantial risk. We move different. We still tell you the truth about risk.</p>
+  <p class="copy">© 2026 BAD APPLE 17BA ENTERPRISE <span class="kgn">· KINGSTON, JA</span><br>Trading involves substantial risk. We move different. We still tell you the truth about risk.</p>
 </div></footer>
 
 <script>
 'use strict';
-// SOON cards: flip description in place instead of dead links
-document.querySelectorAll('[data-soon]').forEach(c=>{
-  c.addEventListener('click',()=>{
-    const p=c.querySelector('p'),cta=c.querySelector('.cta');
-    if(c.dataset.open){p.textContent=c.dataset.orig;cta.textContent='DETAILS →';delete c.dataset.open}
-    else{c.dataset.orig=p.textContent;p.textContent=c.dataset.soon.replace(/&amp;/g,'&');cta.textContent='CLOSE ×';c.dataset.open='1'}
-  });
-});
-// scroll-in reveal (motion-safe handled in CSS)
+/* ================= SITE CONFIG ================= */
+const SITES = {
+  enterprise: 'https://17ba-bad-apple-enterprise.vercel.app',
+  auth:       'https://17ba-bad-apple-enterprise.vercel.app/auth',
+  app:        'https://17ba-bad-apple-enterprise.vercel.app/app',
+  storefront: '../badapple-template/landing.html',
+  pest:       'https://jmac17ba.github.io/pest-tech-pro/',
+  lifepath:   '../lifepath-app/index.html',
+  dashboard:  '../dashboard/index.html',
+  sandbox:    '../agent-sandbox/index.html',
+};
+document.querySelectorAll('[data-site]').forEach(a=>{const u=SITES[a.dataset.site];if(u)a.href=u});
+
+/* reveal on scroll (IntersectionObserver, motion-safe in CSS) */
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
 document.querySelectorAll('.rise').forEach(el=>io.observe(el));
+
+/* boot off */
+const boot=document.getElementById('boot');
+const bootOff=()=>boot&&boot.classList.add('off');
+addEventListener('load',()=>setTimeout(bootOff,300));
+setTimeout(bootOff,1600);
 </script>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+<script type="module">
+/* ============ THE FALL: a gold apple that bruises on scroll ============
+   One world, one material. Points only, no models, no textures.
+   Fails => .no3d (static logo). Reduced motion => single still frame. */
+import * as THREE from 'three';
+
+const mount=document.getElementById('world');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const mobile=innerWidth<760;
+try{
+  const renderer=new THREE.WebGLRenderer({antialias:false,alpha:true,powerPreference:'low-power'});
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+  renderer.setSize(innerWidth,innerHeight);
+  mount.appendChild(renderer.domElement);
+
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,.1,50);
+  camera.position.set(0,0,4.6);
+
+  /* ---- sample the apple as points ---- */
+  const N=mobile?3200:7000, DUST=mobile?60:140, STEM=mobile?160:360;
+  const total=N+STEM+DUST;
+  const pos=new Float32Array(total*3), rnd=new Float32Array(total), kind=new Float32Array(total);
+  let i3=0,ii=0;
+  const put=(x,y,z,k)=>{pos[i3++]=x;pos[i3++]=y;pos[i3++]=z;rnd[ii]=Math.random();kind[ii++]=k};
+  // apple body: lathe profile with top dimple
+  for(let n=0;n<N;n++){
+    const u=Math.acos(1-2*Math.random());            // polar, uniform-ish on sphere
+    const ph=Math.random()*Math.PI*2;
+    let r=Math.sin(u)*(1+.10*Math.cos(u));           // wider shoulders
+    let y=-Math.cos(u)*1.02;
+    y-=.34*Math.exp(-Math.pow((u)/.42,2));           // top dimple (u≈0 is top)
+    y+=.16*Math.exp(-Math.pow((Math.PI-u)/.5,2));    // bottom pucker
+    r*=1+.012*Math.sin(5*ph);                        // subtle lobes
+    put(Math.cos(ph)*r, y, Math.sin(ph)*r, 0);
+  }
+  // stem
+  for(let n=0;n<STEM;n++){
+    const t=Math.random();
+    put((Math.random()-.5)*.05+t*.16, .62+t*.55, (Math.random()-.5)*.05, 2);
+  }
+  // orchard dust
+  for(let n=0;n<DUST;n++){
+    const R=2.2+Math.random()*2.6, th=Math.random()*Math.PI*2, ps=(Math.random()-.5)*Math.PI;
+    put(Math.cos(th)*Math.cos(ps)*R, Math.sin(ps)*R*.8, Math.sin(th)*Math.cos(ps)*R, 1);
+  }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('aRnd',new THREE.BufferAttribute(rnd,1));
+  geo.setAttribute('aKind',new THREE.BufferAttribute(kind,1));
+
+  const uni={
+    uTime:{value:0}, uBruise:{value:0}, uSize:{value:mobile?2.4:2.9},
+    uDir:{value:new THREE.Vector3(.55,.2,.79).normalize()},
+  };
+  const mat=new THREE.ShaderMaterial({
+    uniforms:uni, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+    vertexShader:`
+      attribute float aRnd; attribute float aKind;
+      uniform float uTime,uSize,uBruise; uniform vec3 uDir;
+      varying float vA; varying float vBr; varying float vK; varying float vR;
+      void main(){
+        vec3 p=position; vK=aKind; vR=aRnd;
+        float wob=aKind==1.0?.12:.016;
+        p+=wob*vec3(sin(uTime*.7+aRnd*17.0),cos(uTime*.6+aRnd*23.0),sin(uTime*.8+aRnd*29.0));
+        vBr=(aKind==0.0)?smoothstep(.25,.92,dot(normalize(position),uDir))*uBruise:0.0;
+        vec4 mv=modelViewMatrix*vec4(p,1.0);
+        gl_Position=projectionMatrix*mv;
+        gl_PointSize=uSize*(aKind==1.0?1.4:1.0)*(3.4/-mv.z);
+        vA=aKind==1.0?.16:.85;
+      }`,
+    fragmentShader:`
+      uniform float uTime; varying float vA,vBr,vK,vR;
+      void main(){
+        vec2 c=gl_PointCoord-.5; float d=dot(c,c); if(d>.25)discard;
+        vec3 gold=vec3(.984,.749,.141), ox=vec3(.42,.09,.11), stem=vec3(.55,.36,.13);
+        vec3 col=vK==2.0?stem:mix(gold,ox,vBr);
+        float tw=.75+.25*sin(uTime*1.4+vR*6.283);
+        float a=vA*tw*smoothstep(.25,.05,d)*(1.0-vBr*.35);
+        gl_FragColor=vec4(col,a);
+      }`
+  });
+  const apple=new THREE.Points(geo,mat);
+  const grp=new THREE.Group(); grp.add(apple); scene.add(grp);
+
+  const place=()=>{grp.position.x = innerWidth<760 ? 0 : Math.min(1.55, .6+innerWidth/1400);};
+  place();
+
+  let mx=0,my=0;
+  addEventListener('pointermove',e=>{mx=(e.clientX/innerWidth-.5);my=(e.clientY/innerHeight-.5)},{passive:true});
+
+  const clock=new THREE.Clock(); let raf=0;
+  const frame=()=>{
+    raf=requestAnimationFrame(frame);
+    const t=clock.getElapsedTime();
+    const max=document.documentElement.scrollHeight-innerHeight;
+    const p=max>0?Math.min(1,Math.max(0,scrollY/max)):0;   // read in rAF, no scroll listener
+    uni.uTime.value=t;
+    uni.uBruise.value=THREE.MathUtils.smoothstep(p,.38,.82);
+    grp.rotation.y=t*.14+p*2.2+mx*.35;
+    grp.rotation.x=.12+p*.25+my*.2;
+    camera.position.z=4.6-.5*Math.sin(p*Math.PI);
+    renderer.render(scene,camera);
+  };
+  if(reduce){ // one still frame, pristine
+    uni.uTime.value=1; grp.rotation.y=.6; renderer.render(scene,camera);
+  }else{
+    frame();
+    document.addEventListener('visibilitychange',()=>{
+      if(document.hidden)cancelAnimationFrame(raf); else frame();
+    });
+  }
+  addEventListener('resize',()=>{
+    renderer.setSize(innerWidth,innerHeight);
+    camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();place();
+  });
+}catch(e){document.documentElement.classList.add('no3d')}
+</script>
+<noscript><style>#world{display:none}#fallback{display:block}</style></noscript>
 </body>
 </html>
