@@ -304,6 +304,7 @@ setTimeout(bootOff,1600);
     const v=document.createElement('video');
     v.muted=true;v.playsInline=true;v.preload='auto';
     v.setAttribute('muted','');v.setAttribute('playsinline','');
+    v.poster='assets/chakka-tree.png';   // Chakka shows even before the video decodes
     v.src='tree/chakka.mp4';
     v.addEventListener('error',()=>document.documentElement.classList.add('no3d'));
     mount.appendChild(v);
