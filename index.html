@@ -11,17 +11,19 @@
 <meta property="og:image" content="assets/tree-1-day.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/logo-gold.png">
 <link rel="preload" as="image" href="assets/tree-1-day.jpg">
+<link rel="stylesheet" href="assets/theme.css">
 <style>
-/* THE ORCHARD — one tree, one day. Scroll = the sun goes down. */
+/* THE ORCHARD — one tree, one day. Scroll = the sun goes down.
+   Colors/fonts sourced from assets/theme.css so this page, academy.html,
+   and corefuel.html share one brand instead of drifting apart. */
 :root{
-  --ink:#0b0a09;--snow:#f2efe9;--dim:rgba(242,239,233,.66);--faint:rgba(242,239,233,.38);
-  --gold:#FBBF24;--gold-soft:rgba(251,191,36,.4);--gold-dim:rgba(251,191,36,.07);
-  --red:#b91c1c;
-  --line:rgba(242,239,233,.09);
-  --disp:'Archivo Black',sans-serif;--body:'Archivo',sans-serif;--mono:'IBM Plex Mono',monospace;
+  --ink:var(--color-bg);--snow:var(--color-fg);--dim:var(--color-fg-dim);--faint:var(--color-fg-faint);
+  --gold:var(--color-accent);--gold-soft:var(--color-accent-soft);--gold-dim:var(--color-accent-dim);
+  --red:var(--color-danger);
+  --line:var(--color-border);
+  --disp:var(--font-display);--body:var(--font-body);--mono:var(--font-mono);
 }
 *{box-sizing:border-box;margin:0}
 html{scroll-behavior:smooth}
