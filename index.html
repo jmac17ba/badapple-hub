@@ -89,20 +89,35 @@ main{position:relative;z-index:1}
 
 /* lanes */
 .lanes{padding:16vh 0 12vh}
-h2{font-family:var(--disp);font-size:clamp(1.6rem,3.6vw,2.6rem);text-transform:uppercase;letter-spacing:.02em;margin-bottom:34px;text-shadow:0 1px 12px rgba(0,0,0,.6)}
-.lane{display:grid;grid-template-columns:70px 1fr auto;align-items:center;gap:clamp(14px,3vw,40px);padding:24px 16px;border-top:1px solid var(--line);transition:background .25s}
-.lane:last-of-type{border-bottom:1px solid var(--line)}
-.lane:hover,.lane:focus-visible{background:var(--gold-dim)}
-.lane .ix{font-family:var(--mono);font-size:.78rem;color:var(--faint)}
-.lane:hover .ix{color:var(--gold)}
-.lane .nm{display:block;font-family:var(--disp);font-size:clamp(1.3rem,3.2vw,2.2rem);text-transform:uppercase;line-height:1;transition:color .2s}
-.lane:hover .nm{color:var(--gold)}
-.lane .ds{font-size:.85rem;color:var(--dim);margin-top:7px;max-width:52ch}
+h2{font-family:var(--disp);font-size:clamp(1.6rem,3.6vw,2.6rem);text-transform:uppercase;letter-spacing:.02em;text-shadow:0 1px 12px rgba(0,0,0,.6)}
+.lanes-head{margin-bottom:34px;max-width:60ch}
+.lanes-head p{margin-top:12px;font-size:.92rem;line-height:1.6;color:var(--dim)}
+.lane-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;background:var(--line);border:1px solid var(--line)}
+@media(min-width:1300px){.lane-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:700px){.lane-grid{grid-template-columns:1fr}}
+.lane{position:relative;display:flex;flex-direction:column;gap:22px;min-height:236px;background:rgba(11,10,9,.82);padding:clamp(22px,2.6vw,30px);overflow:hidden;transition:background .25s ease,transform .25s cubic-bezier(.16,1,.3,1)}
+.lane::before{content:"";position:absolute;top:0;left:0;bottom:0;width:2px;background:transparent;transition:background .25s ease}
+.lane:hover,.lane:focus-visible{background:#151310;transform:translateY(-4px)}
+.lane:hover::before,.lane:focus-visible::before{background:var(--gold)}
+.lane-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.lane-icon{display:grid;place-items:center;width:40px;height:40px;flex:none;border:1px solid var(--line);color:var(--dim);transition:color .25s ease,border-color .25s ease}
+.lane-icon svg{width:20px;height:20px}
+.lane:hover .lane-icon,.lane:focus-visible .lane-icon{color:var(--gold);border-color:var(--gold-soft)}
+.lane-body{margin-top:auto}
+.lane .nm{display:block;font-family:var(--disp);font-size:clamp(1.4rem,2.4vw,2rem);text-transform:uppercase;line-height:1;transition:color .2s}
+.lane:hover .nm,.lane:focus-visible .nm{color:var(--gold)}
+.lane .ds{font-size:.82rem;color:var(--dim);margin-top:10px;max-width:38ch;line-height:1.55}
+.lane-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.lane .ix{font-family:var(--mono);font-size:.72rem;color:var(--faint);letter-spacing:.08em}
+.lane:hover .ix,.lane:focus-visible .ix{color:var(--gold)}
 .lane .tag{font-family:var(--mono);font-size:.6rem;font-weight:600;letter-spacing:.2em;padding:5px 12px;flex:none}
 .tag.live{background:var(--gold);color:var(--ink)}
 .tag.dev{border:1px solid var(--gold-soft);color:var(--gold)}
 .tag.int{border:1px solid var(--line);color:var(--faint)}
-@media(max-width:640px){.lane{grid-template-columns:1fr auto}.lane .ix{display:none}}
+.lane-go{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.62rem;font-weight:600;letter-spacing:.18em;color:var(--faint);opacity:0;transform:translateX(-6px);transition:opacity .25s ease,transform .25s ease,color .25s ease}
+.lane-go svg{width:13px;height:13px}
+.lane:hover .lane-go,.lane:focus-visible .lane-go{opacity:1;transform:none;color:var(--gold)}
+@media(prefers-reduced-motion:reduce){.lane:hover,.lane:focus-visible{transform:none}}
 
 /* ops */
 .ops{padding:4vh 0 16vh}
@@ -206,27 +221,56 @@ footer .fcol a:hover{color:var(--gold)}
   </div></div></header>
 
   <section class="lanes" id="lanes"><div class="col"><div class="veil">
-    <h2>The lanes</h2>
-    <a class="lane rise" data-site="enterprise" href="https://17ba-bad-apple-enterprise.vercel.app" target="_blank" rel="noopener">
-      <span class="ix">01</span>
-      <span><span class="nm">Trade</span><span class="ds">Chakka &amp; Kwasheba. MT5 expert advisors built in Kingston, tested in fire.</span></span>
-      <span class="tag dev">DEV</span>
-    </a>
-    <a class="lane rise" data-site="storefront" href="../badapple-template/landing.html">
-      <span class="ix">02</span>
-      <span><span class="nm">Fashion</span><span class="ds">Drop 001. Limited and numbered. Clothes that talk.</span></span>
-      <span class="tag dev">DEV</span>
-    </a>
-    <a class="lane rise" href="corefuel.html">
-      <span class="ix">03</span>
-      <span><span class="nm">Fitness</span><span class="ds">CoreFuel. 1,324 exercises. Fuel that builds.</span></span>
-      <span class="tag live">LIVE</span>
-    </a>
-    <a class="lane rise" href="academy.html">
-      <span class="ix">04</span>
-      <span><span class="nm">Learn</span><span class="ds">The Academy. Two courses, XP, streaks, quizzes. Knowledge that frees.</span></span>
-      <span class="tag live">LIVE</span>
-    </a>
+    <div class="lanes-head">
+      <h2>The lanes</h2>
+      <p>Four branches off one root. Same discipline, different fruit — pick where you climb in.</p>
+    </div>
+    <div class="lane-grid">
+      <a class="lane rise" data-site="enterprise" href="https://17ba-bad-apple-enterprise.vercel.app" target="_blank" rel="noopener">
+        <span class="lane-top">
+          <span class="lane-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
+          <span class="tag dev">DEV</span>
+        </span>
+        <span class="lane-body"><span class="nm">Trade</span><span class="ds">Chakka &amp; Kwasheba. MT5 expert advisors built in Kingston, tested in fire.</span></span>
+        <span class="lane-bottom">
+          <span class="ix">01</span>
+          <span class="lane-go">ENTER<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+        </span>
+      </a>
+      <a class="lane rise" data-site="storefront" href="../badapple-template/landing.html">
+        <span class="lane-top">
+          <span class="lane-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"></path><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"></circle></svg></span>
+          <span class="tag dev">DEV</span>
+        </span>
+        <span class="lane-body"><span class="nm">Fashion</span><span class="ds">Drop 001. Limited and numbered. Clothes that talk.</span></span>
+        <span class="lane-bottom">
+          <span class="ix">02</span>
+          <span class="lane-go">ENTER<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+        </span>
+      </a>
+      <a class="lane rise" href="corefuel.html">
+        <span class="lane-top">
+          <span class="lane-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg></span>
+          <span class="tag live">LIVE</span>
+        </span>
+        <span class="lane-body"><span class="nm">Fitness</span><span class="ds">CoreFuel. 1,324 exercises. Fuel that builds.</span></span>
+        <span class="lane-bottom">
+          <span class="ix">03</span>
+          <span class="lane-go">ENTER<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+        </span>
+      </a>
+      <a class="lane rise" href="academy.html">
+        <span class="lane-top">
+          <span class="lane-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"></path><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"></path></svg></span>
+          <span class="tag live">LIVE</span>
+        </span>
+        <span class="lane-body"><span class="nm">Learn</span><span class="ds">The Academy. Two courses, XP, streaks, quizzes. Knowledge that frees.</span></span>
+        <span class="lane-bottom">
+          <span class="ix">04</span>
+          <span class="lane-go">ENTER<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+        </span>
+      </a>
+    </div>
   </div></div></section>
 
   <section class="ops"><div class="col"><div class="veil" style="max-width:920px">
