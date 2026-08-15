@@ -87,7 +87,7 @@ canvas.ch{width:100%;background:#0d110d;border:1px solid var(--line);border-radi
 .tri .big{max-width:none}
 /* ===== character system + pixel village ===== */
 canvas{image-rendering:pixelated;image-rendering:crisp-edges}
-body.pathbg{background-color:#0b0a09}
+body.pathbg{background-color:#0b0a09;image-rendering:pixelated;image-rendering:crisp-edges}
 #walker{position:fixed;left:50%;top:54vh;transform:translateX(-50%);z-index:7;pointer-events:none;display:none;filter:drop-shadow(0 4px 3px rgba(0,0,0,.4))}
 #walker.show{display:block}
 .wrap{position:relative;z-index:6}
@@ -666,71 +666,90 @@ function openProfileEditor(onboard){
  const upd=()=>{sv.disabled=onboard&&!nm.value.trim();};nm.oninput=upd;upd();
  sv.onclick=()=>{const name=nm.value.trim()||(S.profile&&S.profile.name)||'Trader';S.profile={name,char:sel};save();closeOv();};}
 /* ============ PIXEL VILLAGE BACKGROUND ============ */
+/* Drawn into a low-res buffer (130x225) and scaled up 4x with pixelated
+   rendering — that low-res pass is what gives real pixel art its chunky,
+   crisp edges. Palette is a tight ramp per material (dark/mid/light). */
 let VILL=null;
-/* pitched-roof cottage: overhanging tiled roof + timber facade */
-function vHouse(x,y,w,h,roof,roofLo,wall,door){
- const rh=Math.round(h*0.56),o=7;let t='',p='';
- for(let i=1;i<5;i++)t+=`<rect x='${x-o}' y='${y+Math.round(rh*i/5)}' width='${w+o*2}' height='2' fill='#00000030'/>`;
- for(let i=1;i<4;i++)p+=`<rect x='${x+3}' y='${y+rh+Math.round((h-rh)*i/4)}' width='${w-6}' height='2' fill='#0000001c'/>`;
- return `<g><rect x='${x+4}' y='${y+h-5}' width='${w-8}' height='11' rx='5' fill='#00000026'/>
- <rect x='${x}' y='${y+rh}' width='${w}' height='${h-rh}' fill='${wall}' stroke='#2a1f14' stroke-width='3'/>${p}
- <rect x='${x-o}' y='${y}' width='${w+o*2}' height='${rh}' fill='${roof}' stroke='#2a1f14' stroke-width='3'/>
- <rect x='${x-o+3}' y='${y+rh-Math.round(rh*.32)}' width='${w+o*2-6}' height='${Math.round(rh*.32)}' fill='${roofLo}'/>${t}
- <rect x='${x-o+6}' y='${y+5}' width='${w+o*2-12}' height='3' fill='#ffffff26'/>
- <rect x='${x+Math.round(w/2)-16}' y='${y+rh+10}' width='32' height='${h-rh-10}' fill='${door}' stroke='#2a1f14' stroke-width='3'/>
- <rect x='${x+13}' y='${y+rh+12}' width='25' height='19' fill='#bfe6f0' stroke='#2a1f14' stroke-width='3'/>
- <rect x='${x+w-38}' y='${y+rh+12}' width='25' height='19' fill='#bfe6f0' stroke='#2a1f14' stroke-width='3'/></g>`;}
-/* layered conifer */
-function vTree(x,y,s){return `<g transform='translate(${x},${y}) scale(${s||1})'>
- <ellipse cx='0' cy='47' rx='25' ry='7' fill='#00000026'/>
- <rect x='-5' y='26' width='10' height='21' fill='#5b3f22' stroke='#3a2714' stroke-width='2'/>
- <path d='M0,-32 L27,6 L-27,6 Z' fill='#2f7a34' stroke='#1d4f21' stroke-width='2'/>
- <path d='M0,-14 L31,26 L-31,26 Z' fill='#388b3b' stroke='#1d4f21' stroke-width='2'/>
- <path d='M0,2 L35,41 L-35,41 Z' fill='#2b7130' stroke='#1d4f21' stroke-width='2'/>
- <path d='M-3,-28 L8,-14 L-13,-14 Z' fill='#4da44a' opacity='.65'/></g>`;}
-function vBush(x,y,s){return `<g transform='translate(${x},${y}) scale(${s||1})'>
- <circle cx='-12' cy='5' r='13' fill='#2b6c2e'/><circle cx='12' cy='5' r='13' fill='#2b6c2e'/>
- <circle cx='0' cy='-4' r='16' fill='#357d34'/><circle cx='-6' cy='-9' r='6' fill='#47993f' opacity='.55'/></g>`;}
-function vFence(x,y,n){let f=`<rect x='${x}' y='${y+7}' width='${n*17}' height='5' fill='#a8854f'/><rect x='${x}' y='${y+17}' width='${n*17}' height='5' fill='#8f7042'/>`;
- for(let i=0;i<n;i++)f+=`<rect x='${x+i*17}' y='${y}' width='7' height='28' fill='#b8935a' stroke='#6b5230' stroke-width='2'/>`;return `<g>${f}</g>`;}
-function vBarrel(x,y){return `<g><ellipse cx='${x+11}' cy='${y+25}' rx='12' ry='4' fill='#00000026'/><rect x='${x}' y='${y}' width='22' height='25' rx='6' fill='#8a5f31' stroke='#4a3218' stroke-width='2'/><rect x='${x}' y='${y+7}' width='22' height='4' fill='#5f4222'/><rect x='${x}' y='${y+15}' width='22' height='4' fill='#5f4222'/></g>`;}
-function vCrate(x,y){return `<g><rect x='${x}' y='${y}' width='26' height='24' fill='#a87c44' stroke='#5b4022' stroke-width='2'/><path d='M${x},${y} L${x+26},${y+24} M${x+26},${y} L${x},${y+24}' stroke='#5b4022' stroke-width='2'/></g>`;}
+const PAL={
+ gr0:'#37702a',gr1:'#4a8f33',gr2:'#5da33c',gr3:'#6fb84a',
+ dt0:'#9c7b4a',dt1:'#c2a06a',dt2:'#d9bd8b',
+ hg0:'#1f5322',hg1:'#2f7a33',hg2:'#43a03f',
+ wd0:'#4a3218',wd1:'#7a552c',wd2:'#a87c44',
+ wl0:'#9c8a6a',wl1:'#d0c09c',wl2:'#eadfc4',
+ wn0:'#5a93a6',wn1:'#bfe6f0',
+ tr0:'#1d4f21',tr1:'#2f7a34',tr2:'#46983f',tr3:'#5fb54d',
+ ol:'#1b1610',sh:'#00000026'};
+const ROOFS=[['#2f5f6b','#4b8f9c','#74b8c4'],['#7a2f1c','#c4552f','#e07a4c'],
+ ['#5e2426','#8f3b34','#b55a4c'],['#2e5a2a','#4a7d43','#6aa05c']];
 function buildVillage(){
- const W=520,H=900,rx=168,rw=184,rr=rx+rw,cy=418,ch=60;
- let s=`<svg xmlns='http://www.w3.org/2000/svg' width='${W}' height='${H}' viewBox='0 0 ${W} ${H}'>`;
- /* grass + texture */
- s+=`<rect width='${W}' height='${H}' fill='#5da33c'/>`;
- for(let y=0;y<H;y+=56)s+=`<rect y='${y}' width='${W}' height='28' fill='#67ad43' opacity='.5'/>`;
- [[40,70],[96,150],[30,262],[122,330],[60,500],[24,560],[110,616],[46,700],[130,786],[70,860],
-  [400,62],[470,132],[382,250],[496,306],[420,360],[472,498],[386,566],[500,640],[410,734],[464,822]]
- .forEach(([x,y],i)=>{s+=`<rect x='${x}' y='${y}' width='13' height='5' rx='2' fill='#4a9331'/>`;
-  if(i%3===0)s+=`<circle cx='${x+17}' cy='${y-7}' r='3' fill='#f2e34a'/>`;
-  if(i%4===1)s+=`<circle cx='${x-9}' cy='${y+9}' r='3' fill='#ef7fae'/>`;});
- /* crossroad + main path */
- s+=`<rect x='0' y='${cy}' width='${W}' height='${ch}' fill='#c3a06c'/><rect x='0' y='${cy}' width='${W}' height='4' fill='#a8865220'/>`;
- s+=`<rect x='${rx}' y='0' width='${rw}' height='${H}' fill='#c9a86f'/>`;
- s+=`<rect x='${rx}' y='0' width='7' height='${H}' fill='#ab8b55'/><rect x='${rr-7}' y='0' width='7' height='${H}' fill='#ab8b55'/>`;
- for(let y=14;y<H;y+=74)s+=`<rect x='${rx+rw/2-19}' y='${y}' width='38' height='22' rx='8' fill='#d9be89'/>`;
- [[190,60],[330,120],[200,210],[336,268],[186,330],[326,470],[198,540],[338,600],[192,660],[330,742],[204,820]]
-  .forEach(([x,y])=>{s+=`<circle cx='${x}' cy='${y}' r='4' fill='#b0904f'/>`;});
- /* hedges lining the path (skip the crossroad gap) */
- for(let y=8;y<H;y+=26){if(y>cy-24&&y<cy+ch+10)continue;
-  s+=`<circle cx='${rx-9}' cy='${y}' r='15' fill='#2b6c2e'/><circle cx='${rx-13}' cy='${y-5}' r='7' fill='#3d8a3b' opacity='.55'/>`;
-  s+=`<circle cx='${rr+9}' cy='${y}' r='15' fill='#2b6c2e'/><circle cx='${rr+5}' cy='${y-5}' r='7' fill='#3d8a3b' opacity='.55'/>`;}
- /* buildings — roof tones from the reference */
- s+=vHouse(18,86,130,146,'#4b8f9c','#3a7280','#d9c9a4','#6b4a29');
- s+=vHouse(372,196,132,146,'#c4552f','#9c3f22','#d9c9a4','#6b4a29');
- s+=vHouse(16,556,134,148,'#8f3b34','#70292a','#cbb894','#5e4023');
- s+=vHouse(370,650,136,148,'#4a7d43','#396433','#d9c9a4','#6b4a29');
- /* trees & bushes */
- s+=vTree(92,300,1.05)+vTree(38,404,.85)+vTree(126,470,.95)+vTree(64,796,1.05);
- s+=vTree(432,92,1)+vTree(486,392,.9)+vTree(404,494,1.05)+vTree(468,806,.95);
- s+=vBush(140,246,.8)+vBush(30,660,.75)+vBush(392,146,.75)+vBush(500,566,.8)+vBush(120,880,.7);
- /* props */
- s+=vFence(20,272,5)+vFence(392,432,6)+vFence(28,470,4);
- s+=vBarrel(150,392)+vBarrel(358,368)+vCrate(146,742)+vBarrel(360,860);
- s+='</svg>';
- return 'url("data:image/svg+xml,'+encodeURIComponent(s)+'")';}
+ const W=130,H=225,c=document.createElement('canvas');c.width=W;c.height=H;
+ const x=c.getContext('2d');
+ const R=(a,b,w,h,col)=>{x.fillStyle=col;x.fillRect(a|0,b|0,w|0,h|0)};
+ const D=(a,b,w,h,col,o)=>{x.fillStyle=col;for(let j=0;j<h;j++)for(let i=0;i<w;i++)
+   if(((i+j+(o||0))&1)===0)x.fillRect(a+i,b+j,1,1)};
+ let sd=7;const rnd=()=>{sd=(sd*1103515245+12345)&0x7fffffff;return sd/0x7fffffff};
+ /* grass base + dithered texture */
+ R(0,0,W,H,PAL.gr2);
+ for(let i=0;i<190;i++){const a=(rnd()*W)|0,b=(rnd()*H)|0,w=2+((rnd()*5)|0);
+  D(a,b,w,2,rnd()<.5?PAL.gr1:PAL.gr3,(a+b)&1);}
+ for(let i=0;i<44;i++){const a=(rnd()*W)|0,b=(rnd()*H)|0;
+  R(a,b,3,1,PAL.gr0);R(a+1,b-1,1,1,PAL.gr0);}
+ const rx=42,rw=46,rr=rx+rw,cy=104,ch=15;
+ /* crossroad, then main road */
+ R(0,cy,W,ch,PAL.dt1);D(0,cy,W,2,PAL.dt0,0);D(0,cy+ch-2,W,2,PAL.dt0,1);
+ R(rx,0,rw,H,PAL.dt1);
+ R(rx,0,2,H,PAL.dt0);R(rr-2,0,2,H,PAL.dt0);
+ D(rx+2,0,3,H,PAL.dt0,0);D(rr-5,0,3,H,PAL.dt0,1);
+ for(let y=3;y<H;y+=18){R(rx+16,y,10,5,PAL.dt2);R(rx+17,y-1,8,1,PAL.dt2);R(rx+17,y+5,8,1,PAL.dt2);}
+ for(let i=0;i<70;i++){const a=rx+3+((rnd()*(rw-6))|0),b=(rnd()*H)|0;R(a,b,1,1,PAL.dt0);}
+ /* hedge rows lining the road, with a gap at the crossroad */
+ const hedge=(hx)=>{for(let y=0;y<H;y+=5){if(y>cy-6&&y<cy+ch+3)continue;
+   R(hx,y,7,5,PAL.hg1);R(hx,y,7,1,PAL.hg2);R(hx+1,y+4,5,1,PAL.hg0);
+   R(hx-1,y+1,1,3,PAL.hg0);R(hx+7,y+1,1,3,PAL.hg0);}};
+ hedge(rx-8);hedge(rr+1);
+ /* conifer: stacked tiers with a lit left face and dark outline */
+ const tree=(cx0,by,sc)=>{const t=sc||1,tw=t>0.9?4:3;
+  R(cx0-1,by-4,3,4,PAL.wd0);R(cx0-1,by-4,1,4,PAL.wd1);
+  D(cx0-6,by-1,12,2,PAL.sh,0);
+  const tiers=t>0.9?[[0,10],[5,13],[10,16]]:[[0,8],[4,11],[8,13]];
+  tiers.forEach(([oy,ww])=>{const top=by-22*t+oy*t;
+   for(let r=0;r<9*t;r++){const half=Math.round((ww*(r/(9*t)))/1.7)+1;
+    R(cx0-half,top+r,half*2,1,PAL.tr1);
+    R(cx0-half,top+r,Math.max(1,half),1,PAL.tr2);
+    R(cx0-half,top+r,1,1,PAL.tr0);R(cx0+half-1,top+r,1,1,PAL.tr0);}
+   R(cx0-1,top,2,1,PAL.tr3);});};
+ const bush=(a,b)=>{R(a,b,9,6,PAL.hg1);R(a+1,b-1,7,1,PAL.hg2);R(a,b,4,2,PAL.hg2);
+  R(a+1,b+6,7,1,PAL.hg0);R(a-1,b+1,1,4,PAL.hg0);R(a+9,b+1,1,4,PAL.hg0);};
+ /* cottage: overhanging tiled roof + timber wall */
+ const house=(a,b,w,h,ri)=>{const [d,m,l]=ROOFS[ri],rh=Math.round(h*.55),o=2;
+  D(a+2,b+h,w-4,2,PAL.sh,0);
+  R(a,b+rh,w,h-rh,PAL.wl1);R(a,b+rh,w,1,PAL.wl2);
+  for(let i=2;i<w-2;i+=5)R(a+i,b+rh+2,1,h-rh-3,PAL.wl0);
+  R(a,b+rh,1,h-rh,PAL.ol);R(a+w-1,b+rh,1,h-rh,PAL.ol);R(a,b+h-1,w,1,PAL.ol);
+  R(a-o,b,w+o*2,rh,m);
+  for(let r=1;r<rh;r+=3){R(a-o,b+r,w+o*2,1,d);}
+  D(a-o,b+rh-4,w+o*2,4,d,0);
+  R(a-o,b,w+o*2,2,l);R(a-o,b,1,rh,PAL.ol);R(a+w+o-1,b,1,rh,PAL.ol);
+  R(a-o,b,w+o*2,1,PAL.ol);R(a-o,b+rh-1,w+o*2,1,PAL.ol);
+  const dw=6,dx=a+((w-dw)>>1);
+  R(dx,b+rh+3,dw,h-rh-4,PAL.wd1);R(dx,b+rh+3,1,h-rh-4,PAL.wd0);
+  R(dx,b+rh+3,dw,1,PAL.wd0);R(dx+dw-1,b+rh+3,1,h-rh-4,PAL.wd0);
+  [[a+3,0],[a+w-9,1]].forEach(([wx])=>{R(wx,b+rh+4,6,5,PAL.wn1);
+   R(wx,b+rh+4,6,1,PAL.wn0);R(wx,b+rh+4,1,5,PAL.wn0);
+   R(wx-1,b+rh+3,8,1,PAL.ol);R(wx-1,b+rh+9,8,1,PAL.ol);});};
+ const fence=(a,b,n)=>{R(a,b+2,n*5,1,PAL.wd2);R(a,b+5,n*5,1,PAL.wd1);
+  for(let i=0;i<n;i++){R(a+i*5,b,2,8,PAL.wd2);R(a+i*5,b,1,8,PAL.wd0);}};
+ const barrel=(a,b)=>{D(a,b+7,6,1,PAL.sh,0);R(a,b,6,7,PAL.wd1);R(a,b,1,7,PAL.wd0);
+  R(a+5,b,1,7,PAL.wd0);R(a,b+2,6,1,PAL.wd0);R(a,b+5,6,1,PAL.wd0);R(a+1,b,4,1,PAL.wd2);};
+ /* scene */
+ house(4,20,33,20,0); house(93,48,32,20,1);
+ house(3,138,34,21,2); house(92,162,33,21,3);
+ tree(20,78,1); tree(9,101,.85); tree(31,118,.95); tree(16,199,1);
+ tree(108,24,1); tree(121,98,.85); tree(101,124,1); tree(117,201,.9);
+ bush(34,62); bush(7,165); bush(97,36); bush(120,141); bush(29,214);
+ fence(5,68,5); fence(98,110,5); fence(7,118,4);
+ barrel(37,98); barrel(89,92); barrel(90,215); barrel(36,185);
+ return 'url("'+c.toDataURL()+'")';}
 function setVillage(on){
  if(on){if(!VILL)VILL=buildVillage();const w=Math.min(520,window.innerWidth);
   document.body.style.backgroundImage='linear-gradient(rgba(11,10,9,.28),rgba(11,10,9,.5)),'+VILL;
