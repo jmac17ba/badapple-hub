@@ -667,19 +667,68 @@ function openProfileEditor(onboard){
  sv.onclick=()=>{const name=nm.value.trim()||(S.profile&&S.profile.name)||'Trader';S.profile={name,char:sel};save();closeOv();};}
 /* ============ PIXEL VILLAGE BACKGROUND ============ */
 let VILL=null;
-function house(x,y,roof){return `<g><rect x='${x}' y='${y+34}' width='120' height='72' fill='#e6d3a8' stroke='#3b2f1c' stroke-width='2'/><rect x='${x-6}' y='${y}' width='132' height='40' fill='${roof}' stroke='#2a1f12' stroke-width='2'/><rect x='${x+14}' y='${y+8}' width='104' height='7' fill='#00000022'/><rect x='${x+46}' y='${y+66}' width='28' height='40' fill='#6b4a29' stroke='#3b2f1c' stroke-width='2'/><rect x='${x+14}' y='${y+50}' width='24' height='22' fill='#bfe3ef' stroke='#3b2f1c' stroke-width='2'/><rect x='${x+82}' y='${y+50}' width='24' height='22' fill='#bfe3ef' stroke='#3b2f1c' stroke-width='2'/></g>`;}
-function tree(x,y){return `<g><rect x='${x+14}' y='${y+30}' width='10' height='20' fill='#6b4a29'/><circle cx='${x+19}' cy='${y+24}' r='22' fill='#2f7d34'/><circle cx='${x+3}' cy='${y+30}' r='15' fill='#357f39'/><circle cx='${x+35}' cy='${y+30}' r='15' fill='#2b6f30'/><circle cx='${x+19}' cy='${y+13}' r='14' fill='#3f9040'/></g>`;}
-function fence(x,y){let f='';for(let i=0;i<5;i++)f+=`<rect x='${x+i*16}' y='${y}' width='6' height='22' fill='#9c7b4e'/>`;return `<g>${f}<rect x='${x}' y='${y+6}' width='${5*16}' height='5' fill='#9c7b4e'/></g>`;}
+/* pitched-roof cottage: overhanging tiled roof + timber facade */
+function vHouse(x,y,w,h,roof,roofLo,wall,door){
+ const rh=Math.round(h*0.56),o=7;let t='',p='';
+ for(let i=1;i<5;i++)t+=`<rect x='${x-o}' y='${y+Math.round(rh*i/5)}' width='${w+o*2}' height='2' fill='#00000030'/>`;
+ for(let i=1;i<4;i++)p+=`<rect x='${x+3}' y='${y+rh+Math.round((h-rh)*i/4)}' width='${w-6}' height='2' fill='#0000001c'/>`;
+ return `<g><rect x='${x+4}' y='${y+h-5}' width='${w-8}' height='11' rx='5' fill='#00000026'/>
+ <rect x='${x}' y='${y+rh}' width='${w}' height='${h-rh}' fill='${wall}' stroke='#2a1f14' stroke-width='3'/>${p}
+ <rect x='${x-o}' y='${y}' width='${w+o*2}' height='${rh}' fill='${roof}' stroke='#2a1f14' stroke-width='3'/>
+ <rect x='${x-o+3}' y='${y+rh-Math.round(rh*.32)}' width='${w+o*2-6}' height='${Math.round(rh*.32)}' fill='${roofLo}'/>${t}
+ <rect x='${x-o+6}' y='${y+5}' width='${w+o*2-12}' height='3' fill='#ffffff26'/>
+ <rect x='${x+Math.round(w/2)-16}' y='${y+rh+10}' width='32' height='${h-rh-10}' fill='${door}' stroke='#2a1f14' stroke-width='3'/>
+ <rect x='${x+13}' y='${y+rh+12}' width='25' height='19' fill='#bfe6f0' stroke='#2a1f14' stroke-width='3'/>
+ <rect x='${x+w-38}' y='${y+rh+12}' width='25' height='19' fill='#bfe6f0' stroke='#2a1f14' stroke-width='3'/></g>`;}
+/* layered conifer */
+function vTree(x,y,s){return `<g transform='translate(${x},${y}) scale(${s||1})'>
+ <ellipse cx='0' cy='47' rx='25' ry='7' fill='#00000026'/>
+ <rect x='-5' y='26' width='10' height='21' fill='#5b3f22' stroke='#3a2714' stroke-width='2'/>
+ <path d='M0,-32 L27,6 L-27,6 Z' fill='#2f7a34' stroke='#1d4f21' stroke-width='2'/>
+ <path d='M0,-14 L31,26 L-31,26 Z' fill='#388b3b' stroke='#1d4f21' stroke-width='2'/>
+ <path d='M0,2 L35,41 L-35,41 Z' fill='#2b7130' stroke='#1d4f21' stroke-width='2'/>
+ <path d='M-3,-28 L8,-14 L-13,-14 Z' fill='#4da44a' opacity='.65'/></g>`;}
+function vBush(x,y,s){return `<g transform='translate(${x},${y}) scale(${s||1})'>
+ <circle cx='-12' cy='5' r='13' fill='#2b6c2e'/><circle cx='12' cy='5' r='13' fill='#2b6c2e'/>
+ <circle cx='0' cy='-4' r='16' fill='#357d34'/><circle cx='-6' cy='-9' r='6' fill='#47993f' opacity='.55'/></g>`;}
+function vFence(x,y,n){let f=`<rect x='${x}' y='${y+7}' width='${n*17}' height='5' fill='#a8854f'/><rect x='${x}' y='${y+17}' width='${n*17}' height='5' fill='#8f7042'/>`;
+ for(let i=0;i<n;i++)f+=`<rect x='${x+i*17}' y='${y}' width='7' height='28' fill='#b8935a' stroke='#6b5230' stroke-width='2'/>`;return `<g>${f}</g>`;}
+function vBarrel(x,y){return `<g><ellipse cx='${x+11}' cy='${y+25}' rx='12' ry='4' fill='#00000026'/><rect x='${x}' y='${y}' width='22' height='25' rx='6' fill='#8a5f31' stroke='#4a3218' stroke-width='2'/><rect x='${x}' y='${y+7}' width='22' height='4' fill='#5f4222'/><rect x='${x}' y='${y+15}' width='22' height='4' fill='#5f4222'/></g>`;}
+function vCrate(x,y){return `<g><rect x='${x}' y='${y}' width='26' height='24' fill='#a87c44' stroke='#5b4022' stroke-width='2'/><path d='M${x},${y} L${x+26},${y+24} M${x+26},${y} L${x},${y+24}' stroke='#5b4022' stroke-width='2'/></g>`;}
 function buildVillage(){
- const W=520,H=760,rx=205,rw=110;let s=`<svg xmlns='http://www.w3.org/2000/svg' width='${W}' height='${H}' viewBox='0 0 ${W} ${H}'>`;
- s+=`<rect width='${W}' height='${H}' fill='#6cbb4b'/>`;
- for(let y=0;y<H;y+=48)s+=`<rect y='${y}' width='${W}' height='24' fill='#63af45' opacity='.5'/>`;
- [[40,120],[150,300],[470,180],[380,560],[60,600],[480,660],[200,700],[300,40]].forEach(([x,y])=>{s+=`<rect x='${x}' y='${y}' width='11' height='6' rx='3' fill='#4f9636'/>`;});
- s+=`<rect x='${rx}' y='0' width='${rw}' height='${H}' fill='#caa96b'/><rect x='${rx}' y='0' width='6' height='${H}' fill='#a6864f'/><rect x='${rx+rw-6}' y='0' width='6' height='${H}' fill='#a6864f'/>`;
- for(let y=18;y<H;y+=70)s+=`<rect x='${rx+rw/2-16}' y='${y}' width='32' height='20' rx='6' fill='#d8bd84'/>`;
- s+=house(40,270,'#c14a3d')+house(340,70,'#3f7cc1')+house(348,500,'#4aa35a');
- s+=tree(78,60)+tree(120,540)+tree(430,300)+tree(400,690)+tree(28,660);
- s+=fence(150,180)+fence(330,430);
+ const W=520,H=900,rx=168,rw=184,rr=rx+rw,cy=418,ch=60;
+ let s=`<svg xmlns='http://www.w3.org/2000/svg' width='${W}' height='${H}' viewBox='0 0 ${W} ${H}'>`;
+ /* grass + texture */
+ s+=`<rect width='${W}' height='${H}' fill='#5da33c'/>`;
+ for(let y=0;y<H;y+=56)s+=`<rect y='${y}' width='${W}' height='28' fill='#67ad43' opacity='.5'/>`;
+ [[40,70],[96,150],[30,262],[122,330],[60,500],[24,560],[110,616],[46,700],[130,786],[70,860],
+  [400,62],[470,132],[382,250],[496,306],[420,360],[472,498],[386,566],[500,640],[410,734],[464,822]]
+ .forEach(([x,y],i)=>{s+=`<rect x='${x}' y='${y}' width='13' height='5' rx='2' fill='#4a9331'/>`;
+  if(i%3===0)s+=`<circle cx='${x+17}' cy='${y-7}' r='3' fill='#f2e34a'/>`;
+  if(i%4===1)s+=`<circle cx='${x-9}' cy='${y+9}' r='3' fill='#ef7fae'/>`;});
+ /* crossroad + main path */
+ s+=`<rect x='0' y='${cy}' width='${W}' height='${ch}' fill='#c3a06c'/><rect x='0' y='${cy}' width='${W}' height='4' fill='#a8865220'/>`;
+ s+=`<rect x='${rx}' y='0' width='${rw}' height='${H}' fill='#c9a86f'/>`;
+ s+=`<rect x='${rx}' y='0' width='7' height='${H}' fill='#ab8b55'/><rect x='${rr-7}' y='0' width='7' height='${H}' fill='#ab8b55'/>`;
+ for(let y=14;y<H;y+=74)s+=`<rect x='${rx+rw/2-19}' y='${y}' width='38' height='22' rx='8' fill='#d9be89'/>`;
+ [[190,60],[330,120],[200,210],[336,268],[186,330],[326,470],[198,540],[338,600],[192,660],[330,742],[204,820]]
+  .forEach(([x,y])=>{s+=`<circle cx='${x}' cy='${y}' r='4' fill='#b0904f'/>`;});
+ /* hedges lining the path (skip the crossroad gap) */
+ for(let y=8;y<H;y+=26){if(y>cy-24&&y<cy+ch+10)continue;
+  s+=`<circle cx='${rx-9}' cy='${y}' r='15' fill='#2b6c2e'/><circle cx='${rx-13}' cy='${y-5}' r='7' fill='#3d8a3b' opacity='.55'/>`;
+  s+=`<circle cx='${rr+9}' cy='${y}' r='15' fill='#2b6c2e'/><circle cx='${rr+5}' cy='${y-5}' r='7' fill='#3d8a3b' opacity='.55'/>`;}
+ /* buildings — roof tones from the reference */
+ s+=vHouse(18,86,130,146,'#4b8f9c','#3a7280','#d9c9a4','#6b4a29');
+ s+=vHouse(372,196,132,146,'#c4552f','#9c3f22','#d9c9a4','#6b4a29');
+ s+=vHouse(16,556,134,148,'#8f3b34','#70292a','#cbb894','#5e4023');
+ s+=vHouse(370,650,136,148,'#4a7d43','#396433','#d9c9a4','#6b4a29');
+ /* trees & bushes */
+ s+=vTree(92,300,1.05)+vTree(38,404,.85)+vTree(126,470,.95)+vTree(64,796,1.05);
+ s+=vTree(432,92,1)+vTree(486,392,.9)+vTree(404,494,1.05)+vTree(468,806,.95);
+ s+=vBush(140,246,.8)+vBush(30,660,.75)+vBush(392,146,.75)+vBush(500,566,.8)+vBush(120,880,.7);
+ /* props */
+ s+=vFence(20,272,5)+vFence(392,432,6)+vFence(28,470,4);
+ s+=vBarrel(150,392)+vBarrel(358,368)+vCrate(146,742)+vBarrel(360,860);
  s+='</svg>';
  return 'url("data:image/svg+xml,'+encodeURIComponent(s)+'")';}
 function setVillage(on){
@@ -693,14 +742,14 @@ window.addEventListener('resize',()=>{if(document.body.classList.contains('pathb
 /* ============ WALKING CHARACTER ============ */
 let WALK=null;
 function initWalker(){
- const px=7,c=document.createElement('canvas');c.id='walker';c.width=14*px+2;c.height=18*px+8;
+ const px=4,c=document.createElement('canvas');c.id='walker';c.width=14*px+2;c.height=18*px+8;
  document.body.appendChild(c);const ctx=c.getContext('2d');WALK={el:c,px};
  let moving=false,lastMove=0;
  window.addEventListener('scroll',()=>{moving=true;lastMove=performance.now();},{passive:true});
  function loop(now){
   if(now-lastMove>150)moving=false;
   ctx.clearRect(0,0,c.width,c.height);
-  ctx.fillStyle='rgba(0,0,0,.28)';ctx.beginPath();ctx.ellipse(c.width/2,17*px+4,7*px*0.5,4,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(0,0,0,.28)';ctx.beginPath();ctx.ellipse(c.width/2,17*px+4,7*px*0.5,3,0,0,Math.PI*2);ctx.fill();
   const C=CHARS[(S.profile&&S.profile.char)||0];let f=0,bob=0;
   if(moving){const step=Math.floor(now/130)%2;f=step?1:2;bob=step?-2:0;}
   ctx.save();ctx.translate(1,bob);drawSprite(ctx,C,px,f);ctx.restore();
