@@ -85,6 +85,27 @@ canvas.ch{width:100%;background:#0d110d;border:1px solid var(--line);border-radi
 .vidbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .tri{display:flex;gap:10px}
 .tri .big{max-width:none}
+/* ===== character system + pixel village ===== */
+canvas{image-rendering:pixelated;image-rendering:crisp-edges}
+body.pathbg{background-color:#0b0a09}
+#walker{position:fixed;left:50%;top:54vh;transform:translateX(-50%);z-index:7;pointer-events:none;display:none;filter:drop-shadow(0 4px 3px rgba(0,0,0,.4))}
+#walker.show{display:block}
+.wrap{position:relative;z-index:6}
+body.pathbg .node .lbl{text-shadow:0 1px 3px rgba(0,0,0,.9)}
+body.pathbg .unit p{text-shadow:0 1px 2px rgba(0,0,0,.4)}
+#me{display:flex;align-items:center;gap:7px;background:none;border:1px solid var(--line);border-radius:20px;padding:2px 10px 2px 3px;cursor:pointer;color:var(--txt)}
+#me:hover{border-color:var(--gold)}
+#me canvas{width:28px;height:36px;display:block}
+#me b{font-size:11px;font-family:var(--font-mono);max-width:74px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top{flex-wrap:wrap}
+.cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:6px 0 4px}
+.cpick{background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:8px 2px 5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;box-shadow:0 3px 0 #101610}
+.cpick.sel{border-color:var(--gold);background:#1a1608}
+.cpick canvas{width:42px;height:54px}
+.cpick span{font-size:9.5px;color:var(--dim);font-family:var(--font-mono);letter-spacing:.5px}
+.cpick.sel span{color:var(--gold)}
+.field{width:100%;background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:12px;color:var(--txt);font-size:15px;font-family:inherit}
+.field:focus{outline:none;border-color:var(--green)}
 </style>
 </head>
 <body>
@@ -331,14 +352,19 @@ const today=()=>new Date().toISOString().slice(0,10);
 function refillHearts(){if(S.hd!==today()){S.h=5;S.hd=today();save()}}
 function loseHeart(){S.h=Math.max(0,S.h-1);save();hdr()}
 function addXP(n){S.xp+=n;if(S.today.d!==today())S.today={d:today(),xp:0};S.today.xp+=n;save();hdr()}
-function hdr(){refillHearts();document.getElementById('xp').textContent=S.xp;document.getElementById('stk').textContent=S.streak.n;document.getElementById('hh').textContent=S.h}
+function hdr(){refillHearts();document.getElementById('xp').textContent=S.xp;document.getElementById('stk').textContent=S.streak.n;document.getElementById('hh').textContent=S.h;if(typeof drawMe==='function')drawMe()}
 /* ============ TABS ============ */
 const page=document.getElementById('page'),ov=document.getElementById('ov');
 const TABS=[["🏠","PATH"],["🔁","REVIEW"],["🃏","CARDS"],["📊","STATS"]];let tab=0;
 const tbar=document.getElementById('tabs');
 TABS.forEach((t,i)=>{const b=document.createElement('button');b.innerHTML=`<div>${t[0]}</div>${t[1]}`;b.onclick=()=>{tab=i;render()};tbar.appendChild(b)});
 function el(h){const d=document.createElement('div');d.innerHTML=h;return d.firstElementChild}
-function render(){[...tbar.children].forEach((b,i)=>b.className=i===tab?'on':'');hdr();page.innerHTML='';[path,review,cardsTab,stats][tab]();window.scrollTo(0,0);}
+function render(){[...tbar.children].forEach((b,i)=>b.className=i===tab?'on':'');hdr();
+ const onPath=tab===0&&!!S.profile;
+ document.body.classList.toggle('pathbg',onPath);
+ setVillage(onPath);
+ if(WALK)WALK.el.classList.toggle('show',onPath);
+ page.innerHTML='';[path,review,cardsTab,stats][tab]();window.scrollTo(0,0);}
 /* ============ PATH ============ */
 function courseLocked(ci){if(ci===0)return false;return !S.un[ci]&&!S.n[`c${ci-1}X`]}
 function unlocked(ci,idx){if(courseLocked(ci))return false;const P=PATHS[ci];if(idx===0)return true;return !!S.n[P[idx-1].id]}
@@ -573,11 +599,116 @@ function stats(){
   <div class="card"><h3>Library — read next</h3>
    <p style="margin:8px 0"><b class="g">In the Academy:</b> The Forex Mindset (Martinez) · Trading in the Zone (Douglas)</p>
    <p class="small">After these: Best Loser Wins (Hougaard — his interview is the C2 finale) · Market Wizards (Schwager) · Reminiscences of a Stock Operator.</p></div>
-  <div class="card"><h3>Reset</h3><button class="big red" style="max-width:220px" id="rz">RESET ALL PROGRESS</button></div>
+  <div class="card"><h3>🎒 Your Trader</h3><div class="row" style="margin-top:8px">
+   <canvas id="stcv" width="42" height="54" style="width:56px;height:72px;background:#0d110d;border:1px solid var(--line);border-radius:10px"></canvas>
+   <div style="flex:1;min-width:150px"><h3 id="stnm" style="margin-bottom:4px">Trader</h3>
+    <p class="small">Your character &amp; name for this Academy — change them anytime.</p>
+    <button class="big gold" style="max-width:190px;margin-top:10px" id="edp">EDIT TRADER</button></div></div></div>
+  <div class="card"><h3>Reset</h3><button class="big red" style="max-width:220px" id="rz">RESET ALL PROGRESS</button>
+   <p class="small" style="margin-top:8px">Wipes progress and your trader — you'll create a new one.</p></div>
  </div>`);
+ if(S.profile){drawSprite(w.querySelector('#stcv').getContext('2d'),CHARS[S.profile.char||0],3,0);w.querySelector('#stnm').textContent=S.profile.name;}
+ w.querySelector('#edp').onclick=()=>openProfileEditor(false);
  w.querySelector('#rz').onclick=()=>{if(confirm('Wipe all Academy progress?')){localStorage.removeItem(K);location.reload()}};
  page.appendChild(w);}
-render();
+/* ============ CHARACTER SYSTEM ============ */
+const CHARS=[
+ {nm:'NOVA', skin:'#f2c79b',hair:'#2b2b33',shirt:'#17b3a3',pants:'#20303a',boots:'#12202a',accent:'#0e8a7d'},
+ {nm:'BLAZE',skin:'#e8b483',hair:'#7a2f12',shirt:'#e5484d',pants:'#3a1e16',boots:'#241009',accent:'#ff8a3d'},
+ {nm:'COIN', skin:'#f2c79b',hair:'#e8c24a',shirt:'#ffc800',pants:'#3a3320',boots:'#241f00',accent:'#a6791f'},
+ {nm:'VINE', skin:'#c98d5a',hair:'#1f3d1f',shirt:'#39d353',pants:'#183018',boots:'#0c1a0c',accent:'#1f7a33'},
+ {nm:'BOLT', skin:'#8a5a34',hair:'#101018',shirt:'#2bb3ff',pants:'#132436',boots:'#0a1622',accent:'#1b6fd0'},
+ {nm:'ROSE', skin:'#f0b9a0',hair:'#5a1f4a',shirt:'#ff5da8',pants:'#3a1730',boots:'#240f1e',accent:'#c23c86'},
+ {nm:'GHOST',skin:'#e6c6a8',hair:'#cfd8dc',shirt:'#c8d0d8',pants:'#3a4048',boots:'#20262c',accent:'#8892a0'},
+ {nm:'ONYX', skin:'#6b4326',hair:'#0c0c10',shirt:'#7c5cff',pants:'#241f3a',boots:'#120f22',accent:'#4b36a8'}];
+/* pixel sprite: 14x18 grid, frame 0=stand, 1/2=walk steps */
+function drawSprite(ctx,C,px,frame){
+ const R=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x*px,y*px,w*px,h*px);};
+ R(4,0,6,1,C.hair); R(3,1,8,2,C.hair); R(3,3,1,3,C.hair); R(10,3,1,3,C.hair);
+ R(4,3,6,4,C.skin); R(5,4,1,1,'#171310'); R(8,4,1,1,'#171310');
+ R(6,7,2,1,C.skin);
+ R(3,8,8,1,C.accent); R(3,9,8,3,C.shirt); R(6,9,2,3,C.accent);
+ R(2,9,1,3,C.shirt); R(11,9,1,3,C.shirt); R(2,12,1,1,C.skin); R(11,12,1,1,C.skin);
+ R(4,12,6,1,C.pants);
+ if(frame===1){R(4,13,2,2,C.pants);R(4,15,2,1,C.boots);R(8,13,2,3,C.pants);R(8,16,2,1,C.boots);}
+ else if(frame===2){R(4,13,2,3,C.pants);R(4,16,2,1,C.boots);R(8,13,2,2,C.pants);R(8,15,2,1,C.boots);}
+ else{R(4,13,2,3,C.pants);R(8,13,2,3,C.pants);R(4,16,2,1,C.boots);R(8,16,2,1,C.boots);}
+}
+/* header avatar */
+function drawMe(){
+ if(!S.profile)return;const m=document.getElementById('me');if(!m)return;
+ const cv=m.querySelector('canvas');const cx=cv.getContext('2d');cx.clearRect(0,0,cv.width,cv.height);
+ drawSprite(cx,CHARS[S.profile.char||0],2,0);m.querySelector('b').textContent=S.profile.name;}
+function initProfileUI(){
+ if(document.getElementById('me'))return;
+ const b=document.createElement('button');b.id='me';b.innerHTML='<canvas width="28" height="36"></canvas><b></b>';
+ b.onclick=()=>openProfileEditor(false);document.querySelector('.top').appendChild(b);}
+/* create / edit profile */
+function openProfileEditor(onboard){
+ let sel=(S.profile&&S.profile.char)||0;
+ const ph=['Ace','Kaya','Milo','Zuri','Rio','Sena','Dex','Nia'][Math.floor(Math.random()*8)];
+ openOv(`<div class="ovh">${onboard?'<span style="width:22px;display:inline-block"></span>':'<button class="x" onclick="__c()">✕</button>'}<div class="pbar"><i style="width:100%"></i></div></div>
+ <div class="ovb"><h3 class="qt">${onboard?'🎒 Create your trader':'🎒 Your trader'}</h3>
+ <p class="small">${onboard?'Pick a character and a name — this is your Academy profile on this device.':'Rename or reskin your trader.'}</p>
+ <label class="small" style="display:block;margin:14px 0 6px;letter-spacing:1px">NAME</label>
+ <input id="nm" class="field" maxlength="16" placeholder="e.g. ${ph}" value="${((S.profile&&S.profile.name)||'').replace(/"/g,'&quot;')}">
+ <label class="small" style="display:block;margin:16px 0 6px;letter-spacing:1px">CHARACTER</label>
+ <div class="cgrid" id="cg"></div></div>
+ <div class="ovf"><button class="big" id="sv">${onboard?'START LEARNING':'SAVE'}</button></div>`);
+ window.__c=onboard?function(){}:closeOv;
+ const cg=ov.querySelector('#cg');
+ CHARS.forEach((C,i)=>{
+  const d=el(`<button class="cpick ${i===sel?'sel':''}"><canvas width="42" height="54"></canvas><span>${C.nm}</span></button>`);
+  drawSprite(d.querySelector('canvas').getContext('2d'),C,3,0);
+  d.onclick=()=>{sel=i;[...cg.children].forEach((c,j)=>c.classList.toggle('sel',j===i));};
+  cg.appendChild(d);});
+ const nm=ov.querySelector('#nm'),sv=ov.querySelector('#sv');
+ const upd=()=>{sv.disabled=onboard&&!nm.value.trim();};nm.oninput=upd;upd();
+ sv.onclick=()=>{const name=nm.value.trim()||(S.profile&&S.profile.name)||'Trader';S.profile={name,char:sel};save();closeOv();};}
+/* ============ PIXEL VILLAGE BACKGROUND ============ */
+let VILL=null;
+function house(x,y,roof){return `<g><rect x='${x}' y='${y+34}' width='120' height='72' fill='#e6d3a8' stroke='#3b2f1c' stroke-width='2'/><rect x='${x-6}' y='${y}' width='132' height='40' fill='${roof}' stroke='#2a1f12' stroke-width='2'/><rect x='${x+14}' y='${y+8}' width='104' height='7' fill='#00000022'/><rect x='${x+46}' y='${y+66}' width='28' height='40' fill='#6b4a29' stroke='#3b2f1c' stroke-width='2'/><rect x='${x+14}' y='${y+50}' width='24' height='22' fill='#bfe3ef' stroke='#3b2f1c' stroke-width='2'/><rect x='${x+82}' y='${y+50}' width='24' height='22' fill='#bfe3ef' stroke='#3b2f1c' stroke-width='2'/></g>`;}
+function tree(x,y){return `<g><rect x='${x+14}' y='${y+30}' width='10' height='20' fill='#6b4a29'/><circle cx='${x+19}' cy='${y+24}' r='22' fill='#2f7d34'/><circle cx='${x+3}' cy='${y+30}' r='15' fill='#357f39'/><circle cx='${x+35}' cy='${y+30}' r='15' fill='#2b6f30'/><circle cx='${x+19}' cy='${y+13}' r='14' fill='#3f9040'/></g>`;}
+function fence(x,y){let f='';for(let i=0;i<5;i++)f+=`<rect x='${x+i*16}' y='${y}' width='6' height='22' fill='#9c7b4e'/>`;return `<g>${f}<rect x='${x}' y='${y+6}' width='${5*16}' height='5' fill='#9c7b4e'/></g>`;}
+function buildVillage(){
+ const W=520,H=760,rx=205,rw=110;let s=`<svg xmlns='http://www.w3.org/2000/svg' width='${W}' height='${H}' viewBox='0 0 ${W} ${H}'>`;
+ s+=`<rect width='${W}' height='${H}' fill='#6cbb4b'/>`;
+ for(let y=0;y<H;y+=48)s+=`<rect y='${y}' width='${W}' height='24' fill='#63af45' opacity='.5'/>`;
+ [[40,120],[150,300],[470,180],[380,560],[60,600],[480,660],[200,700],[300,40]].forEach(([x,y])=>{s+=`<rect x='${x}' y='${y}' width='11' height='6' rx='3' fill='#4f9636'/>`;});
+ s+=`<rect x='${rx}' y='0' width='${rw}' height='${H}' fill='#caa96b'/><rect x='${rx}' y='0' width='6' height='${H}' fill='#a6864f'/><rect x='${rx+rw-6}' y='0' width='6' height='${H}' fill='#a6864f'/>`;
+ for(let y=18;y<H;y+=70)s+=`<rect x='${rx+rw/2-16}' y='${y}' width='32' height='20' rx='6' fill='#d8bd84'/>`;
+ s+=house(40,270,'#c14a3d')+house(340,70,'#3f7cc1')+house(348,500,'#4aa35a');
+ s+=tree(78,60)+tree(120,540)+tree(430,300)+tree(400,690)+tree(28,660);
+ s+=fence(150,180)+fence(330,430);
+ s+='</svg>';
+ return 'url("data:image/svg+xml,'+encodeURIComponent(s)+'")';}
+function setVillage(on){
+ if(on){if(!VILL)VILL=buildVillage();const w=Math.min(520,window.innerWidth);
+  document.body.style.backgroundImage='linear-gradient(rgba(11,10,9,.28),rgba(11,10,9,.5)),'+VILL;
+  document.body.style.backgroundRepeat='no-repeat, repeat-y';
+  document.body.style.backgroundSize='cover, '+w+'px auto';
+  document.body.style.backgroundPosition='center, top center';}
+ else document.body.style.backgroundImage='none';}
+window.addEventListener('resize',()=>{if(document.body.classList.contains('pathbg'))setVillage(true);});
+/* ============ WALKING CHARACTER ============ */
+let WALK=null;
+function initWalker(){
+ const px=7,c=document.createElement('canvas');c.id='walker';c.width=14*px+2;c.height=18*px+8;
+ document.body.appendChild(c);const ctx=c.getContext('2d');WALK={el:c,px};
+ let moving=false,lastMove=0;
+ window.addEventListener('scroll',()=>{moving=true;lastMove=performance.now();},{passive:true});
+ function loop(now){
+  if(now-lastMove>150)moving=false;
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.fillStyle='rgba(0,0,0,.28)';ctx.beginPath();ctx.ellipse(c.width/2,17*px+4,7*px*0.5,4,0,0,Math.PI*2);ctx.fill();
+  const C=CHARS[(S.profile&&S.profile.char)||0];let f=0,bob=0;
+  if(moving){const step=Math.floor(now/130)%2;f=step?1:2;bob=step?-2:0;}
+  ctx.save();ctx.translate(1,bob);drawSprite(ctx,C,px,f);ctx.restore();
+  requestAnimationFrame(loop);}
+ requestAnimationFrame(loop);}
+/* ============ BOOT ============ */
+function boot(){initProfileUI();initWalker();if(!S.profile)openProfileEditor(true);render();}
+boot();
 </script>
 </body>
 </html>
